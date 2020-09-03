@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -228,14 +229,21 @@ namespace Menter
                 cboMentee.SelectedValue = 0;
                 return;
             }
-            foreach (DataRow ds in dataSet.Tables[0].Rows)
+
+            var list = dataSet.Tables[0].AsEnumerable().Where(x => x.Field<string>("MST_SHAIN_CODE").Equals(selectedValue)).FirstOrDefault();
+            if (list != null)
             {
-                if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
-                {
-                    cboMentee.SelectedValue = selectedValue;
-                    break;
-                }
+                cboMentee.SelectedValue = list.Field<string>("MST_SHAIN_CODE");
             }
+
+            //foreach (DataRow ds in dataSet.Tables[0].Rows)
+            //{
+            //    if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
+            //    {
+            //        cboMentee.SelectedValue = selectedValue;
+            //        break;
+            //    }
+            //}
         }
 
         public void setCboMentor()
@@ -262,14 +270,21 @@ namespace Menter
                 cboMenta.SelectedValue = 0;
                 return;
             }
-            foreach (DataRow ds in dataSet.Tables[0].Rows)
+
+            var list = dataSet.Tables[0].AsEnumerable().Where(x => x.Field<string>("MST_SHAIN_CODE").Equals(selectedValue)).FirstOrDefault();
+            if (list != null)
             {
-                if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
-                {
-                    cboMenta.SelectedValue = selectedValue;
-                    break;
-                }
+                cboMenta.SelectedValue = list.Field<string>("MST_SHAIN_CODE");
             }
+
+            //foreach (DataRow ds in dataSet.Tables[0].Rows)
+            //{
+            //    if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
+            //    {
+            //        cboMenta.SelectedValue = selectedValue;
+            //        break;
+            //    }
+            //}
         }
 
         private void cboMenta_TextChanged(object sender, EventArgs e)

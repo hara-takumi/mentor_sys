@@ -1,12 +1,13 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
 namespace Menter
 {
-    public partial class MH0010 : Form
+    public partial class MH0010 : UserForm
     {
         CommonUtil comU = new CommonUtil();
         DBManager dBManager;
@@ -79,29 +80,52 @@ namespace Menter
 
                 if (ds.Tables[0].Rows.Count != 0)
                 {
-                    for (int i = 0; i < ds.Tables["Table1"].Rows.Count; i++)
+                    //for (int i = 0; i < ds.Tables["Table1"].Rows.Count; i++)
+                    //{
+                    //    //パスワードハッシュ化
+                    //    string hash = comU.GetHashedPassword(txtPw.Text);
+                    //    if (ds.Tables["Table1"].Rows[i]["MST_SHAINPW_PASSWORD"].ToString().Equals(hash))
+                    //    {
+                    //        string id = ds.Tables["Table1"].Rows[i]["MST_SHAIN_CODE"].ToString();
+                    //        string name = ds.Tables["Table1"].Rows[i]["MST_SHAIN_NAME"].ToString();
+                    //        string teamKbn = ds.Tables["Table1"].Rows[i]["MST_SHAIN_MENTOR_TEAM_KBN"].ToString();
+                    //        string keiriKbn = ds.Tables["Table1"].Rows[i]["MST_SHAIN_KEIRI_TANTO_KBN"].ToString();
+                    //        User user = new User(id, name, teamKbn, keiriKbn);
+
+                    //        //排他トラン削除
+                    //        if (!comU.DeleteHaitaUser(id))
+                    //        {
+                    //            return;
+                    //        }
+
+                    //        MH0020 frm = new MH0020(user);
+                    //        frm.Show();
+                    //        this.Hide();
+                    //        return;
+                    //    }
+                    //}
+                    //パスワードハッシュ化
+                    string hash = comU.GetHashedPassword(txtPw.Text);
+                    var dataRow = ds.Tables[0].AsEnumerable().Where(r =>r["MST_SHAINPW_PASSWORD"].ToString().Equals(hash)).FirstOrDefault();
+                    if(dataRow != null)
                     {
-                        //パスワードハッシュ化
-                        string hash = comU.GetHashedPassword(txtPw.Text);
-                        if (ds.Tables["Table1"].Rows[i]["MST_SHAINPW_PASSWORD"].ToString().Equals(hash))
+                        string id = dataRow.Field<string>("MST_SHAIN_CODE").ToString();
+                        string name = dataRow.Field<string>("MST_SHAIN_NAME").ToString();
+                        string teamKbn = dataRow.Field<string>("MST_SHAIN_MENTOR_TEAM_KBN").ToString();
+                        string keiriKbn = dataRow.Field<string>("MST_SHAIN_KEIRI_TANTO_KBN").ToString();
+                        this.User = new User(id, name, teamKbn, keiriKbn);
+
+                        //排他トラン削除
+                        if (!comU.DeleteHaitaUser(id))
                         {
-                            string id = ds.Tables["Table1"].Rows[i]["MST_SHAIN_CODE"].ToString();
-                            string name = ds.Tables["Table1"].Rows[i]["MST_SHAIN_NAME"].ToString();
-                            string teamKbn = ds.Tables["Table1"].Rows[i]["MST_SHAIN_MENTOR_TEAM_KBN"].ToString();
-                            string keiriKbn = ds.Tables["Table1"].Rows[i]["MST_SHAIN_KEIRI_TANTO_KBN"].ToString();
-                            User user = new User(id, name, teamKbn, keiriKbn);
-
-                            //排他トラン削除
-                            if (!comU.DeleteHaitaUser(id))
-                            {
-                                return;
-                            }
-
-                            MH0020 frm = new MH0020(user);
-                            frm.Show();
-                            this.Hide();
                             return;
                         }
+
+                        MH0020 frm = new MH0020();
+                        Send(frm);
+                        frm.Show();
+                        this.Hide();
+                        return;
                     }
 
                 }

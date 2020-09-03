@@ -6,13 +6,11 @@ using System.Windows.Forms;
 
 namespace Menter
 {
-    public partial class MH0020 : Form
+    public partial class MH0020 : UserForm
     {
-        private User user;
         DBManager dBManager;
-        public MH0020(User user)
+        public MH0020()
         {
-            this.user = user;
             InitializeComponent();
 
         }
@@ -22,12 +20,12 @@ namespace Menter
             {
                 btnIchiranMentor.Visible = false;
             }
-            if (string.IsNullOrEmpty(user.TeamKbn) || user.TeamKbn == "0")
+            if (string.IsNullOrEmpty(this.User.TeamKbn) || this.User.TeamKbn == "0")
             {
                 btnIchiranTeam.Visible = false;
                 btnMasta.Visible = false;
             }
-            if (string.IsNullOrEmpty(user.KeiriKbn) || user.KeiriKbn == "0")
+            if (string.IsNullOrEmpty(this.User.KeiriKbn) || this.User.KeiriKbn == "0")
             {
                 btnKrihiShokai.Visible = false;
             }
@@ -42,7 +40,7 @@ namespace Menter
             sql.Append(" FROM MST_MENTOR_MENTEE");
             sql.Append(" LEFT JOIN mst_shain");
             sql.Append("   ON MENTOR_ID = MST_SHAIN_CODE");
-            sql.Append($" WHERE MENTOR_ID = '{user.Id}'");
+            sql.Append($" WHERE MENTOR_ID = '{this.User.Id}'");
 
             //sql.Append($" AND MST_SHAIN_TEKIYO_DATE_END >= CURDATE()");
             //sql.Append($" AND TEKIYO_END_DATE >= CURDATE()");
@@ -86,12 +84,12 @@ namespace Menter
         private void btnIchiranMentor_Click(object sender, EventArgs e)
         {
             int teamMode = 0;
-            MH0030 frm = new MH0030(user, teamMode);
+            MH0030 frm = new MH0030(this.User, teamMode);
             frm.Show();
         }
         private void btnMenta_Click(object sender, EventArgs e)
         {
-            MS0010 frm = new MS0010(user);
+            MS0010 frm = new MS0010(this.User);
             frm.Show();
         }
 
@@ -99,13 +97,13 @@ namespace Menter
         private void btnIchiranTeam_Click(object sender, EventArgs e)
         {
             int teamMode = 1;
-            MH0030 frm = new MH0030(user, teamMode);
+            MH0030 frm = new MH0030(this.User, teamMode);
             frm.Show();
         }
 
         private void btnKrihiShokai_Click(object sender, EventArgs e)
         {
-            MH0050 frm = new MH0050(user);
+            MH0050 frm = new MH0050(this.User);
             frm.Show();
         }
 

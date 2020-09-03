@@ -598,6 +598,11 @@ namespace Menter
                 return;
             }
             string initSelected = null;
+
+            initSelected = dataSet.Tables[0].AsEnumerable()
+                .Where(x => x.Field<DateTime>("TEKIYO_START_DATE") <= DateTime.Now.Date && x.Field<DateTime>("TEKIYO_END_DATE") >= DateTime.Now.Date)
+                .Select(x => x.Field<string>("MST_SHAIN_CODE")).FirstOrDefault().ToString();
+
             //foreach (DataRow ds in dataSet.Tables[0].Rows)
             //{
             //    if ((DateTime)ds["TEKIYO_START_DATE"] <= System.DateTime.Now.Date && (DateTime)ds["TEKIYO_END_DATE"] >= System.DateTime.Now.Date)
@@ -605,11 +610,6 @@ namespace Menter
             //        initSelected = ds["MST_SHAIN_CODE"].ToString();
             //    }
             //}
-            var ds = dataSet.Tables[0].AsEnumerable().Where(r => r.Field<DateTime>("TEKIYO_START_DATE") <= DateTime.Now.Date && r.Field<DateTime>("TEKIYO_END_DATE") >= DateTime.Now.Date).FirstOrDefault();
-            if(ds != null)
-            {
-                initSelected = ds["MST_SHAIN_CODE"].ToString();
-            }
             // コンボボックスにデータテーブルをセット
             this.cboMentee.DataSource = dataSet.Tables[0].DefaultView.ToTable(true, "MST_SHAIN_CODE", "MST_SHAIN_NAME");
             // 表示用の列を設定
@@ -831,7 +831,7 @@ namespace Menter
             return true;
         }
 
-        private bool menteeCheck()
+        private bool MenteeCheck()
         {
             string exec = getDateTimePick(dtpExecDate.Value);
             StringBuilder sql = new StringBuilder();
@@ -849,13 +849,14 @@ namespace Menter
 
             if (ds.Tables["Table1"].Rows[0]["COUNT(MENTEE_ID)"] != DBNull.Value)
             {
-                if(Convert.ToInt32(ds.Tables["Table1"].Rows[0]["COUNT(MENTEE_ID)"].ToString()) != 0)
+                if (Convert.ToInt32(ds.Tables["Table1"].Rows[0]["COUNT(MENTEE_ID)"].ToString()) != 0)
                 {
                     return true;
                 }
             }
             return false;
         }
+
 
         /// <summary>
         /// 一時保存入力チェック
@@ -869,7 +870,7 @@ namespace Menter
                 this.ActiveControl = cboMentee;
                 return false;
             }
-            if (!menteeCheck())
+            if (!MenteeCheck())
             {
                 MessageBox.Show("選択した実施日はメンティーの適用日の範囲外です", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.ActiveControl = cboMentee;
@@ -956,7 +957,7 @@ namespace Menter
                 this.ActiveControl = cboMentee;
                 return false;
             }
-            if (!menteeCheck())
+            if (!MenteeCheck())
             {
                 MessageBox.Show("選択した実施日はメンティーの適用日の範囲外です", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.ActiveControl = cboMentee;
@@ -1770,19 +1771,27 @@ namespace Menter
             changeFlg = true;
 
         }
+
+        /// <summary>
+        /// コメントID取得
+        /// </summary>
+        /// <returns></returns>
         private int getCommentId()
         {
             int id = 1;
             if (dgvIchiran.Rows.Count != 0)
             {
-                for (int i = 0; i < dgvIchiran.Rows.Count; i++)
-                {
-                    if (id < int.Parse(dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString()))
-                    {
-                        id = int.Parse(dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString());
-                    }
-                }
-                id = id + 1;
+                DataTable dt = (DataTable)dgvIchiran.DataSource;
+                id = int.Parse(dt.AsEnumerable().Max(x => x[(int)column.COMMENT_ID]).ToString()) + 1;
+
+                //for (int i = 0; i < dgvIchiran.Rows.Count; i++)
+                //{
+                //    if (id < int.Parse(dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString()))
+                //    {
+                //        id = int.Parse(dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString());
+                //    }
+                //}
+                //id = id + 1;
             }
             return id;
         }
@@ -2021,10 +2030,6 @@ namespace Menter
         private bool changeDetection()
         {
 
-            if (!torokuFlg)
-            {
-
-            }
             if (changeFlg)
             {
                 DialogResult result = MessageBox.Show("内容が変更されています。\n\r変更は破棄されますが、よろしいですか？", "", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);

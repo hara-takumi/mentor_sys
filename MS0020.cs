@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -112,8 +113,7 @@ namespace Menter
         /// <returns></returns>
         public bool setShainCbo(ref DataSet ds)
         {
-            string start = getDateTimePick(dtpStart.Value);
-            string end = getDateTimePick(dtpEnd.Value);
+
 
             //if (!string.IsNullOrEmpty(dtpStart.Value.ToString()))
             //{
@@ -130,21 +130,8 @@ namespace Menter
             sql.Append("     MST_SHAIN_CODE");
             sql.Append("     ,MST_SHAIN_NAME");
             sql.Append(" FROM MST_SHAIN");
-            sql.Append(" WHERE 1=1");
-            if (!string.IsNullOrEmpty(start))
-            {
-
-                sql.Append($" AND MST_SHAIN_TEKIYO_DATE_END >= '{start}'");
-            }
-            if (!string.IsNullOrEmpty(end))
-            {
-                sql.Append($" AND MST_SHAIN_TEKIYO_DATE_STR <= '{end}'");
-            }
-            if (!string.IsNullOrEmpty(start) && !string.IsNullOrEmpty(end))
-            {
-
-                sql.Append($" AND  '{start}' <= '{end}'");
-            }
+            sql.Append(" WHERE MST_SHAIN_TEKIYO_DATE_STR <= CURDATE()");
+            sql.Append(" AND MST_SHAIN_TEKIYO_DATE_END >= CURDATE()");
 
             try
             {
@@ -775,15 +762,23 @@ namespace Menter
                 return;
             }
             bool existFlg = false;
-            foreach (DataRow ds in dataSet.Tables[0].Rows)
+
+            var list = dataSet.Tables[0].AsEnumerable().Where(x => x.Field<string>("MST_SHAIN_CODE").Equals(selectedValue)).FirstOrDefault();
+            if (list != null)
             {
-                if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
-                {
-                    cboMentee.SelectedValue = selectedValue;
-                    existFlg = true;
-                    break;
-                }
+                cboMentee.SelectedValue = list.Field<string>("MST_SHAIN_CODE");
+                existFlg = true;
             }
+
+            //foreach (DataRow ds in dataSet.Tables[0].Rows)
+            //{
+            //    if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
+            //    {
+            //        cboMentee.SelectedValue = selectedValue;
+            //        existFlg = true;
+            //        break;
+            //    }
+            //}
             if (!existFlg)
             {
                 cboMentee.SelectedValue = -1;
@@ -812,33 +807,28 @@ namespace Menter
                 return;
             }
             bool existFlg = false;
-            foreach (DataRow ds in dataSet.Tables[0].Rows)
+
+            var list = dataSet.Tables[0].AsEnumerable().Where(x => x.Field<string>("MST_SHAIN_CODE").Equals(selectedValue)).FirstOrDefault();
+            if (list != null)
             {
-                if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
-                {
-                    cboMenta.SelectedValue = selectedValue;
-                    existFlg = true;
-                    break;
-                }
+                cboMentee.SelectedValue = list.Field<string>("MST_SHAIN_CODE");
+                existFlg = true;
             }
+
+            //foreach (DataRow ds in dataSet.Tables[0].Rows)
+            //{
+            //    if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
+            //    {
+            //        cboMenta.SelectedValue = selectedValue;
+            //        existFlg = true;
+            //        break;
+            //    }
+            //}
             if (!existFlg)
             {
                 cboMenta.SelectedValue = -1;
             }
         }
 
-        private void dtpEnd_Validated(object sender, EventArgs e)
-        {
-            SetMentor();
-
-            SetMentee();
-        }
-
-        private void dtpStart_Validated(object sender, EventArgs e)
-        {
-            SetMentor();
-
-            SetMentee();
-        }
     }
 }

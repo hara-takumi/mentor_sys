@@ -17,6 +17,7 @@ namespace Menter
 
         public bool changeFlg = false;
         public int _mode;
+        string initSelected = null;
 
         private enum mode
         {
@@ -115,14 +116,21 @@ namespace Menter
                 cboMentor.SelectedValue = 0;
                 return;
             }
-            foreach (DataRow ds in dataSet.Tables[0].Rows)
+
+            var list = dataSet.Tables[0].AsEnumerable().Where(x => x.Field<string>("MST_SHAIN_CODE").Equals(selectedValue)).FirstOrDefault();
+            if (list != null)
             {
-                if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
-                {
-                    cboMentor.SelectedValue = selectedValue;
-                    break;
-                }
+                cboMentor.SelectedValue = list.Field<string>("MST_SHAIN_CODE");
             }
+
+            //foreach (DataRow ds in dataSet.Tables[0].Rows)
+            //{
+            //    if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
+            //    {
+            //        cboMentor.SelectedValue = selectedValue;
+            //        break;
+            //    }
+            //}
 
         }
 
@@ -138,7 +146,6 @@ namespace Menter
                 return;
             }
             var selectedValue = cboMentee.SelectedValue;
-            string initSelected = null;
             if (_mode == (int)mode.SUISHINBU)
             {
                 DataRow row = dataSet.Tables[0].NewRow();
@@ -147,18 +154,25 @@ namespace Menter
                 dataSet.Tables[0].Rows.InsertAt(row, 0);
 
             }
-            if (selectedValue == null)
+            if (initSelected == null)
             {
                 if (_mode == (int)mode.MENTA)
                 {
-
-                    foreach (DataRow ds in dataSet.Tables[0].Rows)
+                    if (dataSet.Tables[0].Rows.Count != 0)
                     {
-                        if ((DateTime)ds["TEKIYO_START_DATE"] <= System.DateTime.Now.Date && (DateTime)ds["TEKIYO_END_DATE"] >= System.DateTime.Now.Date)
-                        {
-                            initSelected = ds["MST_SHAIN_CODE"].ToString();
-                        }
+                        initSelected = dataSet.Tables[0].AsEnumerable()
+.Where(x => x.Field<DateTime>("TEKIYO_START_DATE") <= DateTime.Now.Date && x.Field<DateTime>("TEKIYO_END_DATE") >= DateTime.Now.Date)
+.Select(x => x.Field<string>("MST_SHAIN_CODE")).FirstOrDefault().ToString();
                     }
+
+
+                    //foreach (DataRow ds in dataSet.Tables[0].Rows)
+                    //{
+                    //    if ((DateTime)ds["TEKIYO_START_DATE"] <= System.DateTime.Now.Date && (DateTime)ds["TEKIYO_END_DATE"] >= System.DateTime.Now.Date)
+                    //    {
+                    //        initSelected = ds["MST_SHAIN_CODE"].ToString();
+                    //    }
+                    //}
                 }
             }
             // コンボボックスにデータテーブルをセット
@@ -166,37 +180,40 @@ namespace Menter
             if (dataSet.Tables[0].Rows.Count != 0)
             {
                 this.cboMentee.DataSource = dataSet.Tables[0].AsEnumerable().GroupBy(r => r.Field<string>("MST_SHAIN_CODE")).Select(g => g.First()).CopyToDataTable();
-                // 表示用の列を設定
-                this.cboMentee.DisplayMember = "MST_SHAIN_NAME";
-                //// データ用の列を設定
-                this.cboMentee.ValueMember = "MST_SHAIN_CODE";
-                if (initSelected != null)
-                {
-                    cboMentee.SelectedValue = initSelected;
-                }
-                else if (cboMentee.Items.Count != 0)
-                {
-                    cboMentee.SelectedIndex = 0;
-                }
-
-                if (selectedValue != null)
-                {
-                    foreach (DataRow ds in dataSet.Tables[0].Rows)
-                    {
-                        if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
-                        {
-                            cboMentee.SelectedValue = selectedValue;
-                            break;
-                        }
-                    }
-                }
             }
             else
             {
                 this.cboMentee.DataSource = null;
             }
+            // 表示用の列を設定
+            this.cboMentee.DisplayMember = "MST_SHAIN_NAME";
+            //// データ用の列を設定
+            this.cboMentee.ValueMember = "MST_SHAIN_CODE";
+            if (initSelected != null)
+            {
+                cboMentee.SelectedValue = initSelected;
+            }
+            else if(cboMentee.Items.Count != 0)
+            {
+                cboMentee.SelectedIndex = 0;
+            }
 
-
+            if (selectedValue != null)
+            {
+                var list = dataSet.Tables[0].AsEnumerable().Where(x => x.Field<string>("MST_SHAIN_CODE").Equals(selectedValue)).FirstOrDefault();
+                if (list != null)
+                {
+                    cboMentee.SelectedValue = list.Field<string>("MST_SHAIN_CODE");
+                }
+                //foreach (DataRow ds in dataSet.Tables[0].Rows)
+                //{
+                //    if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
+                //    {
+                //        cboMentee.SelectedValue = selectedValue;
+                //        break;
+                //    }
+                //}
+            }
         }
         /// <summary>
         /// DateTimePickerの値から日付を取得
@@ -528,11 +545,12 @@ namespace Menter
             dgvIchiran.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dgvIchiran.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
+            resultIdList = ds.Tables[0].AsEnumerable().Select(x => x.Field<decimal>("MENTOR_RESULT_ID").ToString()).ToList();
 
-            for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
-            {
-                resultIdList.Add((string)ds.Tables[0].Rows[i]["MENTOR_RESULT_ID"].ToString());
-            }
+            //for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+            //{
+            //    resultIdList.Add((string)ds.Tables[0].Rows[i]["MENTOR_RESULT_ID"].ToString());
+            //}
             foreach (DataGridViewColumn column in this.dgvIchiran.Columns)
             {
                 column.SortMode = DataGridViewColumnSortMode.NotSortable;

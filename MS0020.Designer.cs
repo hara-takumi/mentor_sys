@@ -115,7 +115,6 @@
             this.dtpStart.Name = "dtpStart";
             this.dtpStart.Size = new System.Drawing.Size(200, 29);
             this.dtpStart.TabIndex = 3;
-            this.dtpStart.Validated += new System.EventHandler(this.dtpStart_Validated);
             // 
             // label6
             // 
@@ -219,7 +218,6 @@
             this.dtpEnd.Size = new System.Drawing.Size(200, 29);
             this.dtpEnd.TabIndex = 4;
             this.dtpEnd.Value = null;
-            this.dtpEnd.Validated += new System.EventHandler(this.dtpEnd_Validated);
             // 
             // lblUser
             // 

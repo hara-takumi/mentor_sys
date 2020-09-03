@@ -96,14 +96,21 @@ namespace Menter
 
             if (flg)
             {
-                foreach (DataRow ds in dataSet.Tables[0].Rows)
+
+                var list = dataSet.Tables[0].AsEnumerable().Where(x => x.Field<string>("MST_SHAIN_CODE").Equals(selectedValue)).FirstOrDefault();
+                if (list != null)
                 {
-                    if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
-                    {
-                        cboMentor.SelectedValue = selectedValue;
-                        break;
-                    }
+                    cboMentor.SelectedValue = list.Field<string>("MST_SHAIN_CODE");
                 }
+
+                //foreach (DataRow ds in dataSet.Tables[0].Rows)
+                //{
+                //    if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
+                //    {
+                //        cboMentor.SelectedValue = selectedValue;
+                //        break;
+                //    }
+                //}
             }
 
             flg = true;
@@ -314,7 +321,7 @@ namespace Menter
             dgvIchiran.Columns[(int)column.MENTEE_NAME].Width = 130;
             dgvIchiran.Columns[(int)column.PRICE].Width = 150;
             dgvIchiran.Columns[(int)column.MONTH_PRICE].Width = 130;
-            dgvIchiran.Columns[(int)column.PLACE].Width = 130;
+            dgvIchiran.Columns[(int)column.PLACE].Width = 260;
 
             dgvIchiran.Columns[(int)column.PRICE].DefaultCellStyle.Format = "#,0";
             dgvIchiran.Columns[(int)column.MONTH_PRICE].DefaultCellStyle.Format = "#,0";
