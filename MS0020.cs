@@ -120,10 +120,10 @@ namespace Menter
 
         #region メソッド
         /// <summary>
-        /// メンティ―ンボボックス設定
+        /// 社員データ取得
         /// </summary>
         /// <returns></returns>
-        private bool SetMentee(ref DataSet ds)
+        private bool GetShain(ref DataSet ds)
         {
             StringBuilder sql = new StringBuilder();
             sql.Append(" SELECT ");
@@ -254,7 +254,7 @@ namespace Menter
         /// 存在チェック
         /// </summary>
         /// <returns></returns>
-        private bool CheckExistence(bool updFlg = false)
+        private bool CheckExistence(bool updFlg)
         {
             string start;
             string mentor;
@@ -364,11 +364,8 @@ namespace Menter
             if (result == DialogResult.Yes)
             {
                 //登録処理
-                if (InsertMaster())
-                {
-                    return true;
-                }
-                return false;
+                if (InsertMaster()) return true;
+                else return false;
             }
             else
             {
@@ -388,11 +385,8 @@ namespace Menter
             if (result == DialogResult.Yes)
             {
                 //更新処理
-                if (UpdateMaster())
-                {
-                    return true;
-                }
-                return false;
+                if (UpdateMaster()) return true;
+                else return false;
             }
             else
             {
@@ -437,12 +431,8 @@ namespace Menter
             sql.Append($"    ,{comU.CAddQuotation(programId)}) ");
 
             //実行エラー時
-            if (dbUtil.OperationDBTran(sql.ToString(), MSG.MSG003_008) == false)
-            {
-                return false;
-            }
-
-            return true;
+            if (dbUtil.OperationDBTran(sql.ToString(), MSG.MSG003_008)) return true;
+            else return false;
         }
 
         /// <summary>
@@ -467,12 +457,8 @@ namespace Menter
             sql.Append($"  AND TEKIYO_START_DATE = {comU.CReplace(_startDate)}");
 
             //エラーの場合
-            if (dbUtil.OperationDBTran(sql.ToString(), MSG.MSG003_009) == false)
-            {
-                return false;
-            }
-
-            return true;
+            if (dbUtil.OperationDBTran(sql.ToString(), MSG.MSG003_009)) return true;
+            else return false;
         }
 
         /// <summary>
@@ -487,11 +473,8 @@ namespace Menter
             if (result == DialogResult.Yes)
             {
                 //削除処理
-                if (DeleteMaster())
-                {
-                    return true;
-                }
-                return false;
+                if (DeleteMaster()) return true;
+                else return false;
             }
             else
             {
@@ -514,12 +497,8 @@ namespace Menter
             sql.Append($" AND TEKIYO_START_DATE = {start}");
 
             //エラーの場合
-            if (dbUtil.OperationDBTran(sql.ToString(), MSG.MSG003_010) == false)
-            {
-                return false;
-            }
-
-            return true;
+            if (dbUtil.OperationDBTran(sql.ToString(), MSG.MSG003_010)) return true;
+            else return false;
         }
 
         /// <summary>
@@ -529,7 +508,7 @@ namespace Menter
         {
             DataSet dataSet = new DataSet();
             //メンティ―取得
-            if (!SetMentee(ref dataSet))
+            if (!GetShain(ref dataSet))
             {
                 Close();
                 return;
@@ -569,7 +548,7 @@ namespace Menter
         {
             DataSet dataSet = new DataSet();
             //メンターコンボ設定
-            if (!SetMentee(ref dataSet))
+            if (!GetShain(ref dataSet))
             {
                 Close();
                 return;
@@ -642,21 +621,16 @@ namespace Menter
             if (mode.Equals(SyoriMode.INSERT.ToString()))
             {
                 //登録チェック
-                if (!CheckInsert())
-                {
-                    return;
-                }
+                if (!CheckInsert()) return;
+
                 //存在チェック
-                if (!CheckExistence())
+                if (!CheckExistence(false))
                 {
                     ActiveControl = cboMentor;
                     return;
                 }
                 //登録判定
-                if(!JudgmentInsert())
-                {
-                    return;
-                }
+                if(!JudgmentInsert()) return;
                 
                 MessageBox.Show(MSG.MSG006_005, MSG.MSG001_001);
                 torokuFlg = true;
@@ -666,10 +640,8 @@ namespace Menter
             else
             {
                 //更新チェック
-                if (!CheckUpdate())
-                {
-                    return;
-                }
+                if (!CheckUpdate()) return;
+
                 //存在チェック
                 if (!CheckExistence(true))
                 {
@@ -677,10 +649,8 @@ namespace Menter
                     return;
                 }
                 //更新判定
-                if (!JudgmentUpdate())
-                {
-                    return;
-                }
+                if (!JudgmentUpdate()) return;
+
                 MessageBox.Show(MSG.MSG006_010, MSG.MSG001_001);
                 torokuFlg = true;
                 Close();
@@ -695,10 +665,8 @@ namespace Menter
         private void btnDelete_Click(object sender, EventArgs e)
         {
             //削除判定
-            if (!JudgmentDelete())
-            {
-                return;
-            }
+            if (!JudgmentDelete()) return;
+
             MessageBox.Show(MSG.MSG006_009, MSG.MSG001_001);
             torokuFlg = true;
             Close();

@@ -25,13 +25,8 @@ namespace Menter
         /// <returns></returns>
         public List<string> CHour()
         {
-            List<string> listHour = new List<string>();
-            listHour.Add("");
-            for (int i = 0; i < 24; i++)
-            {
-                listHour.Add(i.ToString());
-            }
-
+            List<string>  listHour = Enumerable.Range(0, 24).Select(hour => hour.ToString()).ToList();
+            listHour.Insert(0, "");
             return listHour;
         }
 
@@ -41,9 +36,12 @@ namespace Menter
         /// <returns></returns>
         public List<string> CMinute()
         {
+            //List<string> listMinute = Enumerable.Range(0, 60).Where(Minute => Minute % 15 == 0)
+            //    .Select(Minute => Minute.ToString()).ToList();
+            //listMinute.Insert(0, "");
             List<string> listMinute = new List<string>();
             listMinute.Add("");
-            for (int i = 0; i < 60; i= i+15)
+            for (int i = 0; i < 60; i = i + 15)
             {
                 listMinute.Add(i.ToString("D2"));
             }
@@ -57,14 +55,17 @@ namespace Menter
         /// <returns></returns>
         public List<string> CYear(bool brankFlg)
         {
-            List<string> listYear = new List<string>();
             DateTime dt = DateTime.Now;
-            string str;
-            for (int i = dt.Year - 10; i <= dt.Year + 1; i++)
-            {
-                str = Convert.ToString(i);
-                listYear.Add(str);
-            }
+            List<string> listYear = Enumerable.Range(dt.Year - 10, dt.Year + 1)
+                .Select(year => year.ToString()).Take(12).ToList();
+            //List<string> listYear = new List<string>();
+            //DateTime dt = DateTime.Now;
+            //string str;
+            //for (int i = dt.Year - 10; i <= dt.Year + 1; i++)
+            //{
+            //    str = Convert.ToString(i);
+            //    listYear.Add(str);
+            //}
             if (brankFlg)
             {
                 listYear.Insert(0, "");
@@ -79,150 +80,27 @@ namespace Menter
         public List<string> CMonth(bool brankFlg)
         {
             List<string> listMonth = new List<string>();
-            string str;
-            for (int i = 1; i < 13; i++)
-            {
-                if (i < 10)
-                {
-                    str = Convert.ToString(i).PadLeft(2, '0');
-                }
-                else
-                {
-                    str = Convert.ToString(i);
-                }
-                listMonth.Add(str);
-            }
+            listMonth = Enumerable.Range(1, 12).Select(Month => Month.ToString()).ToList();
+
+            //List<string> listMonth = new List<string>();
+            //string str;
+            //for (int i = 1; i < 13; i++)
+            //{
+            //    if (i < 10)
+            //    {
+            //        str = Convert.ToString(i).PadLeft(2, '0');
+            //    }
+            //    else
+            //    {
+            //        str = Convert.ToString(i);
+            //    }
+            //    listMonth.Add(str);
+            //}
             if (brankFlg)
             {
                 listMonth.Insert(0, "");
             }
             return listMonth;
-        }
-
-        /// <summary>
-        /// 業務コンボボックス設定
-        /// </summary>
-        /// <returns></returns>
-        public bool CGyomu(ref DataSet ds, bool allFlg)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append(" SELECT ");
-                sql.Append("     CD");
-                sql.Append("    ,NAME");
-                sql.Append(" FROM mst_gyomu");
-                sql.Append(" WHERE ");
-                sql.Append(" DEL_FLG = 0 ");
-                sql.Append(" ORDER BY ");
-                sql.Append(" HYOJI_JUN ");
-                var connectionString = ConfigurationManager.ConnectionStrings["mysql"].ConnectionString;
-
-                // データベース接続の準備
-                var connection = new MySqlConnection(connectionString);
-
-                // データベースの接続開始
-                connection.Open();
-
-                // 実行するSQLの準備
-                var command = new MySqlCommand();
-                command.Connection = connection;
-                command.CommandText = sql.ToString();
-
-                DataTable dt = new DataTable();
-
-                MySqlDataAdapter adapter = new MySqlDataAdapter();
-                adapter.SelectCommand = command;
-
-                adapter.Fill(dt);
-
-                command.Dispose();
-
-                connection.Close();
-                connection.Dispose();
-                if (dt.Rows.Count == 0)
-                {
-                    MessageBox.Show("業務マスタが登録されていません。\n\r業務マスタの登録を行ってください。", "エラー");
-                    return false;
-                }
-
-                if (allFlg)
-                {
-                    DataRow row = dt.NewRow();
-                    row["CD"] = "0";
-                    row["NAME"] = "すべて";
-                    dt.Rows.InsertAt(row, 0);
-                }
-
-                ds.Tables.Add(dt);
-
-                return true;
-            }
-            catch (MySqlException)
-            {
-                MessageBox.Show("DBの接続に失敗しました。", "エラー");
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// 作業コンボボックス設定
-        /// </summary>
-        /// <returns></returns>
-        public bool CSagyo(ref DataSet ds, string gyomuCd)
-        {
-            try
-            {
-                StringBuilder sql = new StringBuilder();
-                sql.Append(" SELECT ");
-                sql.Append("     CD");
-                sql.Append("    ,NAME");
-                sql.Append(" FROM mst_SAGYO");
-                sql.Append(" WHERE ");
-                sql.Append(" DEL_FLG = 0 ");
-                sql.Append(" AND ");
-                sql.Append($" GYOMU_CD = {gyomuCd} ");
-                sql.Append(" ORDER BY ");
-                sql.Append(" HYOJI_JUN ");
-                var connectionString = ConfigurationManager.ConnectionStrings["mysql"].ConnectionString;
-
-                // データベース接続の準備
-                var connection = new MySqlConnection(connectionString);
-
-                // データベースの接続開始
-                connection.Open();
-
-                // 実行するSQLの準備
-                var command = new MySqlCommand();
-                command.Connection = connection;
-                command.CommandText = sql.ToString();
-
-                DataTable dt = new DataTable();
-
-                MySqlDataAdapter adapter = new MySqlDataAdapter();
-                adapter.SelectCommand = command;
-
-                adapter.Fill(dt);
-
-                command.Dispose();
-
-                connection.Close();
-                connection.Dispose();
-                if (dt.Rows.Count == 0)
-                {
-                    MessageBox.Show("作業マスタが登録されていません。\n\r作業マスタの登録を行ってください。", "エラー");
-                    return false;
-                }
-
-                ds.Tables.Add(dt);
-
-                return true;
-            }
-            catch (MySqlException)
-            {
-                MessageBox.Show("DBの接続に失敗しました。", "エラー");
-                return false;
-            }
         }
 
         /// <summary>
@@ -268,7 +146,7 @@ namespace Menter
             }
             catch (MySqlException)
             {
-                MessageBox.Show("DB接続に失敗しました。", "エラー");
+                MessageBox.Show(MSG.MSG003_002, MSG.MSG001_002);
                 return false;
             }
 
@@ -285,7 +163,7 @@ namespace Menter
             }
             catch (MySqlException)
             {
-                MessageBox.Show("SQLの実行に失敗しました。", "エラー");
+                MessageBox.Show(MSG.MSG003_001, MSG.MSG001_002);
                 return false;
             }
             finally
@@ -294,9 +172,9 @@ namespace Menter
                 dBManager.Close();
             }
 
-            if (ds.Tables["Table1"].Rows.Count != 0)
+            if (ds.Tables[0].Rows.Count != 0)
             {
-                MessageBox.Show("他のユーザーが編集中です。", "エラー");
+                MessageBox.Show(MSG.MSG007_012, MSG.MSG001_002);
                 return false;
             }
 
@@ -307,7 +185,7 @@ namespace Menter
             }
             catch
             {
-                MessageBox.Show("DB接続に失敗しました。", "エラー");
+                MessageBox.Show(MSG.MSG003_002, MSG.MSG001_002);
                 return false;
             }
 
@@ -339,7 +217,7 @@ namespace Menter
             }
             catch
             {
-                MessageBox.Show("他のユーザーが編集中です。", "エラー");
+                MessageBox.Show(MSG.MSG007_012, MSG.MSG001_002);
                 return false;
             }
             finally
@@ -363,7 +241,7 @@ namespace Menter
             }
             catch
             {
-                MessageBox.Show("DB接続に失敗しました。", "エラー");
+                MessageBox.Show(MSG.MSG003_002, MSG.MSG001_002);
                 return false;
             }
 
@@ -378,7 +256,7 @@ namespace Menter
             }
             catch
             {
-                MessageBox.Show("排他テーブルの削除に失敗しました。", "エラー");
+                MessageBox.Show(MSG.MSG007_013, MSG.MSG001_002);
                 return false;
             }
             finally
@@ -404,7 +282,7 @@ namespace Menter
             }
             catch
             {
-                MessageBox.Show("DB接続に失敗しました。", "エラー");
+                MessageBox.Show(MSG.MSG003_002, MSG.MSG001_002);
                 return false;
             }
 
@@ -419,7 +297,7 @@ namespace Menter
             }
             catch
             {
-                MessageBox.Show("排他テーブルの削除に失敗しました。", "エラー");
+                MessageBox.Show(MSG.MSG007_013, MSG.MSG001_002);
                 return false;
             }
             finally

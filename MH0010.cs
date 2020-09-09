@@ -72,10 +72,7 @@ namespace Menter
                 //SQL処理
                 DataSet ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
                 //実行エラー時
-                if(ds == null)
-                {
-                    return;
-                }
+                if(ds == null) return;
                 //ユーザーを取得した場合
                 if (ds.Tables[0].Rows.Count != 0)
                 {

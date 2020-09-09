@@ -1,5 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -77,10 +76,8 @@ namespace Menter
         /// <param name="e"></param>
         private void dgvIchiran_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex == -1)
-            {
-                return;
-            }
+            if (e.RowIndex == -1) return;
+
             //メンター活動実績入力画面に遷移
             ShowMH0040(e);
         }
@@ -167,7 +164,7 @@ namespace Menter
                 //メンティ―コンボにデータをセット
                 SetMentee();
             }
-            //初期フラグ
+            //初期表示フラグ
             initialFlg = true;
         }
 
@@ -272,10 +269,10 @@ namespace Menter
             {
                 var cboSelectedValueSuisinb = cboMenteeSuisinb.SelectedValue;
                 string initSelected = null;
-                DataRow row = dataSet.Tables[0].NewRow();
-                row["MST_SHAIN_CODE"] = "0";
-                row["MST_SHAIN_NAME"] = "すべて";
-                dataSet.Tables[0].Rows.InsertAt(row, 0);
+                DataRow dr = dataSet.Tables[0].NewRow();
+                dr["MST_SHAIN_CODE"] = "0";
+                dr["MST_SHAIN_NAME"] = "すべて";
+                dataSet.Tables[0].Rows.InsertAt(dr, 0);
                 // 検索結果が0件以上の場合
                 if (dataSet.Tables[0].Rows.Count != 0)
                 {
@@ -606,10 +603,7 @@ namespace Menter
 
             ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
             //エラーの場合
-            if (ds == null)
-            {
-                return;
-            }
+            if (ds == null) return;
 
             //検索結果が0件の場合
             if (ds.Tables[0].Rows.Count == 0)
@@ -684,10 +678,7 @@ namespace Menter
         {
             resultIdList.Clear();
             //入力チェック
-            if (!InputCheckEntry())
-            {
-                return;
-            }
+            if (!InputCheckEntry()) return;
             //検索結果を表示
             Result();
         }

@@ -127,5 +127,9 @@ namespace Menter
         public const string MSG007_010 = "入力した適用日内に既にメンターまたは、メンティーが登録されています。";
 
         public const string MSG007_011 = "他ユーザーのコメントは削除できません。";
+
+        public const string MSG007_012 = "他のユーザーが編集中です。";
+
+        public const string MSG007_013 = "排他テーブルの削除に失敗しました。";
     }
 }

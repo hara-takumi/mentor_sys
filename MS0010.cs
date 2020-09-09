@@ -372,15 +372,12 @@ namespace Menter
 
             DataSet ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
             //エラーの場合
-            if (ds == null)
-            {
-                return;
-            }
+            if (ds == null) return;
 
             //検索結果が0件の場合
             if (ds.Tables[0].Rows.Count == 0)
             {
-                MessageBox.Show("対象がありません");
+                MessageBox.Show(MSG.MSG007_002);
             }
 
             //セルボタン作成
@@ -404,6 +401,7 @@ namespace Menter
                     dgvIchiran.Rows[indx].Cells["MENTEE_ID"].Value = dr["MENTEE_ID"].ToString();
                     dgvIchiran.Rows[indx].Cells["MENTEE_NAME"].Value = dr["MENTEE_NAME"].ToString();
                     dgvIchiran.Rows[indx].Cells["TEKIYO_START_DATE"].Value = Convert.ToDateTime(dr["TEKIYO_START_DATE"].ToString()).ToString("yyyy/MM/dd");
+                    //適用終了日が登録されている場合
                     if (!dr["TEKIYO_END_DATE"].ToString().Equals(""))
                     {
                         dgvIchiran.Rows[indx].Cells["TEKIYO_END_DATE"].Value = Convert.ToDateTime(dr["TEKIYO_END_DATE"].ToString()).ToString("yyyy/MM/dd");
@@ -496,10 +494,8 @@ namespace Menter
         private void btnDisplay_Click(object sender, EventArgs e)
         {
             //入力チェック
-            if (!Check())
-            {
-                return;
-            }
+            if (!Check()) return;
+
             //検索結果を表示
             Result();
         }
