@@ -28,7 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.メンター活動報告書 = new System.Windows.Forms.Label();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.dtpEnd = new Metroit.Windows.Forms.MetDateTimePicker();
@@ -37,7 +43,7 @@
             this.lblMenty = new System.Windows.Forms.Label();
             this.cboMentee = new System.Windows.Forms.ComboBox();
             this.lblMenta = new System.Windows.Forms.Label();
-            this.cboMenta = new System.Windows.Forms.ComboBox();
+            this.cboMentor = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.dgvIchiran = new System.Windows.Forms.DataGridView();
             this.btnReturn = new System.Windows.Forms.Button();
@@ -45,6 +51,13 @@
             this.btnClear = new System.Windows.Forms.Button();
             this.btnDisplay = new System.Windows.Forms.Button();
             this.lblUser = new System.Windows.Forms.Label();
+            this.SENTAKU = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.MENTOR_ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MENTOR_NAME = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MENTEE_ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MENTEE_NAME = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TEKIYO_START_DATE = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TEKIYO_END_DATE = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtpEnd)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dtpStart)).BeginInit();
@@ -70,7 +83,7 @@
             this.pnlHeader.Controls.Add(this.lblMenty);
             this.pnlHeader.Controls.Add(this.cboMentee);
             this.pnlHeader.Controls.Add(this.lblMenta);
-            this.pnlHeader.Controls.Add(this.cboMenta);
+            this.pnlHeader.Controls.Add(this.cboMentor);
             this.pnlHeader.Controls.Add(this.label6);
             this.pnlHeader.Location = new System.Drawing.Point(45, 70);
             this.pnlHeader.Name = "pnlHeader";
@@ -142,18 +155,18 @@
             this.lblMenta.TabIndex = 20;
             this.lblMenta.Text = "メンター";
             // 
-            // cboMenta
+            // cboMentor
             // 
-            this.cboMenta.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMenta.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboMenta.Font = new System.Drawing.Font("MS UI Gothic", 16F);
-            this.cboMenta.FormattingEnabled = true;
-            this.cboMenta.ItemHeight = 21;
-            this.cboMenta.Location = new System.Drawing.Point(107, 60);
-            this.cboMenta.Name = "cboMenta";
-            this.cboMenta.Size = new System.Drawing.Size(158, 29);
-            this.cboMenta.TabIndex = 3;
-            this.cboMenta.TextChanged += new System.EventHandler(this.cboMenta_TextChanged);
+            this.cboMentor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMentor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboMentor.Font = new System.Drawing.Font("MS UI Gothic", 16F);
+            this.cboMentor.FormattingEnabled = true;
+            this.cboMentor.ItemHeight = 21;
+            this.cboMentor.Location = new System.Drawing.Point(107, 60);
+            this.cboMentor.Name = "cboMentor";
+            this.cboMentor.Size = new System.Drawing.Size(158, 29);
+            this.cboMentor.TabIndex = 3;
+            this.cboMentor.SelectedValueChanged += new System.EventHandler(this.cboMentor_SelectedValueChanged);
             // 
             // label6
             // 
@@ -167,18 +180,38 @@
             // 
             // dgvIchiran
             // 
+            this.dgvIchiran.AllowUserToAddRows = false;
+            this.dgvIchiran.AllowUserToResizeColumns = false;
+            this.dgvIchiran.AllowUserToResizeRows = false;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("MS UI Gothic", 16F);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvIchiran.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvIchiran.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("MS UI Gothic", 16F);
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvIchiran.DefaultCellStyle = dataGridViewCellStyle4;
+            this.dgvIchiran.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.SENTAKU,
+            this.MENTOR_ID,
+            this.MENTOR_NAME,
+            this.MENTEE_ID,
+            this.MENTEE_NAME,
+            this.TEKIYO_START_DATE,
+            this.TEKIYO_END_DATE});
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("MS UI Gothic", 16F);
+            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvIchiran.DefaultCellStyle = dataGridViewCellStyle7;
             this.dgvIchiran.Location = new System.Drawing.Point(45, 279);
             this.dgvIchiran.Name = "dgvIchiran";
-            this.dgvIchiran.RowTemplate.Height = 21;
+            this.dgvIchiran.RowHeadersVisible = false;
+            this.dgvIchiran.RowTemplate.Height = 30;
             this.dgvIchiran.Size = new System.Drawing.Size(1143, 350);
             this.dgvIchiran.TabIndex = 8;
             this.dgvIchiran.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvIchiran_CellContentClick);
@@ -238,6 +271,81 @@
             this.lblUser.TabIndex = 100;
             this.lblUser.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // SENTAKU
+            // 
+            this.SENTAKU.DataPropertyName = "SENTAKU";
+            this.SENTAKU.HeaderText = "";
+            this.SENTAKU.Name = "SENTAKU";
+            this.SENTAKU.Width = 75;
+            // 
+            // MENTOR_ID
+            // 
+            this.MENTOR_ID.DataPropertyName = "MENTOR_ID";
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.MENTOR_ID.DefaultCellStyle = dataGridViewCellStyle2;
+            this.MENTOR_ID.HeaderText = "メンターID";
+            this.MENTOR_ID.Name = "MENTOR_ID";
+            this.MENTOR_ID.ReadOnly = true;
+            this.MENTOR_ID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.MENTOR_ID.Visible = false;
+            // 
+            // MENTOR_NAME
+            // 
+            this.MENTOR_NAME.DataPropertyName = "MENTOR_NAME";
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.MENTOR_NAME.DefaultCellStyle = dataGridViewCellStyle3;
+            this.MENTOR_NAME.HeaderText = "メンター";
+            this.MENTOR_NAME.Name = "MENTOR_NAME";
+            this.MENTOR_NAME.ReadOnly = true;
+            this.MENTOR_NAME.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.MENTOR_NAME.Width = 130;
+            // 
+            // MENTEE_ID
+            // 
+            this.MENTEE_ID.DataPropertyName = "MENTEE_ID";
+            this.MENTEE_ID.HeaderText = "メンティ―ID";
+            this.MENTEE_ID.Name = "MENTEE_ID";
+            this.MENTEE_ID.ReadOnly = true;
+            this.MENTEE_ID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.MENTEE_ID.Visible = false;
+            // 
+            // MENTEE_NAME
+            // 
+            this.MENTEE_NAME.DataPropertyName = "MENTEE_NAME";
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.MENTEE_NAME.DefaultCellStyle = dataGridViewCellStyle4;
+            this.MENTEE_NAME.HeaderText = "メンティ―";
+            this.MENTEE_NAME.Name = "MENTEE_NAME";
+            this.MENTEE_NAME.ReadOnly = true;
+            this.MENTEE_NAME.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.MENTEE_NAME.Width = 130;
+            // 
+            // TEKIYO_START_DATE
+            // 
+            this.TEKIYO_START_DATE.DataPropertyName = "TEKIYO_START_DATE";
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle5.Format = "d";
+            dataGridViewCellStyle5.NullValue = null;
+            this.TEKIYO_START_DATE.DefaultCellStyle = dataGridViewCellStyle5;
+            this.TEKIYO_START_DATE.HeaderText = "適用開始日";
+            this.TEKIYO_START_DATE.Name = "TEKIYO_START_DATE";
+            this.TEKIYO_START_DATE.ReadOnly = true;
+            this.TEKIYO_START_DATE.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.TEKIYO_START_DATE.Width = 200;
+            // 
+            // TEKIYO_END_DATE
+            // 
+            this.TEKIYO_END_DATE.DataPropertyName = "TEKIYO_END_DATE";
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle6.Format = "d";
+            dataGridViewCellStyle6.NullValue = null;
+            this.TEKIYO_END_DATE.DefaultCellStyle = dataGridViewCellStyle6;
+            this.TEKIYO_END_DATE.HeaderText = "適用終了日";
+            this.TEKIYO_END_DATE.Name = "TEKIYO_END_DATE";
+            this.TEKIYO_END_DATE.ReadOnly = true;
+            this.TEKIYO_END_DATE.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.TEKIYO_END_DATE.Width = 200;
+            // 
             // MS0010
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 21F);
@@ -254,7 +362,6 @@
             this.Font = new System.Drawing.Font("MS UI Gothic", 16F);
             this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.Name = "MS0010";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MS0010";
             this.Load += new System.EventHandler(this.MS0010_Load);
             this.pnlHeader.ResumeLayout(false);
@@ -277,7 +384,7 @@
         private System.Windows.Forms.Label lblMenty;
         private System.Windows.Forms.ComboBox cboMentee;
         private System.Windows.Forms.Label lblMenta;
-        private System.Windows.Forms.ComboBox cboMenta;
+        private System.Windows.Forms.ComboBox cboMentor;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.DataGridView dgvIchiran;
         private System.Windows.Forms.Button btnReturn;
@@ -285,5 +392,12 @@
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.Button btnDisplay;
         private System.Windows.Forms.Label lblUser;
+        private System.Windows.Forms.DataGridViewButtonColumn SENTAKU;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MENTOR_ID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MENTOR_NAME;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MENTEE_ID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn MENTEE_NAME;
+        private System.Windows.Forms.DataGridViewTextBoxColumn TEKIYO_START_DATE;
+        private System.Windows.Forms.DataGridViewTextBoxColumn TEKIYO_END_DATE;
     }
 }

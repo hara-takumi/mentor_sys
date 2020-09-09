@@ -30,8 +30,8 @@
         {
             this.lblMenty = new System.Windows.Forms.Label();
             this.cboMentee = new System.Windows.Forms.ComboBox();
-            this.lblMenta = new System.Windows.Forms.Label();
-            this.cboMenta = new System.Windows.Forms.ComboBox();
+            this.lblMentor = new System.Windows.Forms.Label();
+            this.cboMentor = new System.Windows.Forms.ComboBox();
             this.メンター活動報告書 = new System.Windows.Forms.Label();
             this.dtpStart = new Metroit.Windows.Forms.MetDateTimePicker();
             this.label6 = new System.Windows.Forms.Label();
@@ -72,27 +72,27 @@
             this.cboMentee.Size = new System.Drawing.Size(158, 29);
             this.cboMentee.TabIndex = 2;
             // 
-            // lblMenta
+            // lblMentor
             // 
-            this.lblMenta.AutoSize = true;
-            this.lblMenta.Font = new System.Drawing.Font("MS UI Gothic", 16F);
-            this.lblMenta.Location = new System.Drawing.Point(101, 114);
-            this.lblMenta.Name = "lblMenta";
-            this.lblMenta.Size = new System.Drawing.Size(74, 22);
-            this.lblMenta.TabIndex = 24;
-            this.lblMenta.Text = "メンター";
+            this.lblMentor.AutoSize = true;
+            this.lblMentor.Font = new System.Drawing.Font("MS UI Gothic", 16F);
+            this.lblMentor.Location = new System.Drawing.Point(101, 114);
+            this.lblMentor.Name = "lblMentor";
+            this.lblMentor.Size = new System.Drawing.Size(74, 22);
+            this.lblMentor.TabIndex = 24;
+            this.lblMentor.Text = "メンター";
             // 
-            // cboMenta
+            // cboMentor
             // 
-            this.cboMenta.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMenta.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboMenta.Font = new System.Drawing.Font("MS UI Gothic", 16F);
-            this.cboMenta.FormattingEnabled = true;
-            this.cboMenta.ItemHeight = 21;
-            this.cboMenta.Location = new System.Drawing.Point(190, 111);
-            this.cboMenta.Name = "cboMenta";
-            this.cboMenta.Size = new System.Drawing.Size(158, 29);
-            this.cboMenta.TabIndex = 1;
+            this.cboMentor.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMentor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboMentor.Font = new System.Drawing.Font("MS UI Gothic", 16F);
+            this.cboMentor.FormattingEnabled = true;
+            this.cboMentor.ItemHeight = 21;
+            this.cboMentor.Location = new System.Drawing.Point(190, 111);
+            this.cboMentor.Name = "cboMentor";
+            this.cboMentor.Size = new System.Drawing.Size(158, 29);
+            this.cboMentor.TabIndex = 1;
             // 
             // メンター活動報告書
             // 
@@ -115,7 +115,6 @@
             this.dtpStart.Name = "dtpStart";
             this.dtpStart.Size = new System.Drawing.Size(200, 29);
             this.dtpStart.TabIndex = 3;
-            this.dtpStart.Validated += new System.EventHandler(this.dtpStart_Validated);
             // 
             // label6
             // 
@@ -211,6 +210,7 @@
             // dtpEnd
             // 
             this.dtpEnd.AcceptNull = true;
+            this.dtpEnd.CustomFormat = " ";
             this.dtpEnd.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpEnd.Location = new System.Drawing.Point(190, 273);
             this.dtpEnd.MaxDate = new System.DateTime(2099, 12, 31, 0, 0, 0, 0);
@@ -219,7 +219,6 @@
             this.dtpEnd.Size = new System.Drawing.Size(200, 29);
             this.dtpEnd.TabIndex = 4;
             this.dtpEnd.Value = null;
-            this.dtpEnd.Validated += new System.EventHandler(this.dtpEnd_Validated);
             // 
             // lblUser
             // 
@@ -248,12 +247,11 @@
             this.Controls.Add(this.メンター活動報告書);
             this.Controls.Add(this.lblMenty);
             this.Controls.Add(this.cboMentee);
-            this.Controls.Add(this.lblMenta);
-            this.Controls.Add(this.cboMenta);
+            this.Controls.Add(this.lblMentor);
+            this.Controls.Add(this.cboMentor);
             this.Font = new System.Drawing.Font("MS UI Gothic", 16F);
             this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.Name = "MS0020";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MS0020";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MS0020_FormClosing);
             this.Load += new System.EventHandler(this.MS0020_Load);
@@ -270,8 +268,8 @@
 
         private System.Windows.Forms.Label lblMenty;
         private System.Windows.Forms.ComboBox cboMentee;
-        private System.Windows.Forms.Label lblMenta;
-        private System.Windows.Forms.ComboBox cboMenta;
+        private System.Windows.Forms.Label lblMentor;
+        private System.Windows.Forms.ComboBox cboMentor;
         private System.Windows.Forms.Label メンター活動報告書;
         private Metroit.Windows.Forms.MetDateTimePicker dtpStart;
         private System.Windows.Forms.Label label6;

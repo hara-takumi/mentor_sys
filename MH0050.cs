@@ -11,51 +11,106 @@ using System.Windows.Forms;
 
 namespace Menter
 {
-    public partial class MH0050 : Form
+    public partial class MH0050 : BaseForm
     {
+        #region メンバー変数
+        private readonly CommonUtil comU = new CommonUtil();
+        private readonly DBUtli dbUtil = new DBUtli();
+        private readonly DateTime dt = DateTime.Now;
+        private bool initialFlg = false;
+        private bool returnFlg = true;
+        #endregion
 
-        CommonUtil comU = new CommonUtil();
-        DBManager dBManager;
-        DateTime dt = System.DateTime.Now;
-        private User user;
-        private bool flg = false;
-
-        public enum column
+        #region コンストラクタ
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public MH0050()
         {
-            EXEC_DATE,
-            MENTOR_NAME,
-            MENTEE_NAME,
-            PRICE,
-            MONTH_PRICE,
-            PLACE
-        }
-
-        public MH0050(User user)
-        {
-            this.user = user;
             InitializeComponent();
-
         }
+        #endregion
 
+        #region イベント処理
+        /// <summary>
+        /// 初期表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MH0050_Load(object sender, EventArgs e)
         {
-
             Initialization();
         }
 
+        /// <summary>
+        /// 年From変更処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboYearFrom_TextChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            if (initialFlg)
+            {
+                //コンボボックスにメンターを設定
+                SetMentor();
+            }
+        }
 
+        /// <summary>
+        /// 月From変更処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboMonthFrom_TextChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            if (initialFlg)
+            {
+                //コンボボックスにメンターを設定
+                SetMentor();
+            }
+        }
+
+        /// <summary>
+        /// 年To変更処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboYearTo_TextChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            if (initialFlg)
+            {
+                //コンボボックスにメンターを設定
+                SetMentor();
+            }
+        }
+
+        /// <summary>
+        /// 月To変更処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboMonthTo_TextChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            if (initialFlg)
+            {
+                //コンボボックスにメンターを設定
+                SetMentor();
+            }
+        }
+        #endregion
+
+        #region メソッド
         /// <summary>
         /// 初期化
         /// </summary>
-        public void Initialization()
+        private void Initialization()
         {
-            //セルの内容に合わせて、行の高さが自動的に調節されるようにする
-            dgvIchiran.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            dgvIchiran.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dgvIchiran.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
             //ユーザー名表示
-            lblUser.Text = user.Name;
+            lblUser.Text = User.Name;
 
             //コンボボックス設定(年月)
             cboYearFrom.DataSource = comU.CYear(true).ToArray();
@@ -67,56 +122,58 @@ namespace Menter
             cboMonthTo.DataSource = comU.CMonth(true).ToArray();
             cboMonthTo.Text = dt.ToString("MM");
 
+            //コンボボックスにメンターを設定
             SetMentor();
-
         }
 
         /// <summary>
         /// コンボボックスセット(メンタ―)
         /// </summary>
-        public void SetMentor()
+        private void SetMentor()
         {
             DataSet dataSet = new DataSet();
-            if (!mentor(ref dataSet))
+            //メンターを取得
+            if (!Mentor(ref dataSet))
             {
-                this.Close();
+                Close();
                 return;
             }
-            var selectedValue = cboMentor.SelectedValue;
+            //コンボで選択したメンター
+            var cboSelectMentor = cboMentor.SelectedValue;
             DataRow row = dataSet.Tables[0].NewRow();
             row["MST_SHAIN_CODE"] = "0";
             row["MST_SHAIN_NAME"] = "すべて";
+            //コンボボックス先頭に"すべて"を設定
             dataSet.Tables[0].Rows.InsertAt(row, 0);
             // コンボボックスにデータテーブルをセット
-            this.cboMentor.DataSource = dataSet.Tables[0];
+            cboMentor.DataSource = dataSet.Tables[0];
             // 表示用の列を設定
-            this.cboMentor.DisplayMember = "MST_SHAIN_NAME";
+            cboMentor.DisplayMember = "MST_SHAIN_NAME";
             //// データ用の列を設定
-            this.cboMentor.ValueMember = "MST_SHAIN_CODE";
+            cboMentor.ValueMember = "MST_SHAIN_CODE";
 
-            if (flg)
+            //初期表示時は通らない
+            if (initialFlg)
             {
-                foreach (DataRow ds in dataSet.Tables[0].Rows)
+                var shainList = dataSet.Tables[0].AsEnumerable().Where(shainData => shainData.Field<string>("MST_SHAIN_CODE").Equals(cboSelectMentor)).FirstOrDefault();
+                if (shainList != null)
                 {
-                    if (selectedValue.Equals(ds["MST_SHAIN_CODE"]))
-                    {
-                        cboMentor.SelectedValue = selectedValue;
-                        break;
-                    }
+                    cboMentor.SelectedValue = shainList.Field<string>("MST_SHAIN_CODE");
                 }
             }
-
-            flg = true;
+            //初期表示フラグ
+            initialFlg = true;
         }
 
         /// <summary>
         /// メンターコンボボックス設定
         /// </summary>
         /// <returns></returns>
-        public bool mentor(ref DataSet ds)
+        private bool Mentor(ref DataSet ds)
         {
-            string yyyyMMfrom = cboYearFrom.Text + cboMonthFrom.Text;
-            string yyyyMMto = cboYearTo.Text + cboMonthTo.Text;
+            //適用開始日・終了日
+            string yyyyMMfrom = cboYearFrom.SelectedValue.ToString() + cboMonthFrom.SelectedValue.ToString();
+            string yyyyMMto = cboYearTo.SelectedValue.ToString() + cboMonthTo.SelectedValue.ToString();
 
             StringBuilder sql = new StringBuilder();
             sql.Append(" SELECT ");
@@ -127,91 +184,75 @@ namespace Menter
             sql.Append("   ON MENTOR_ID = MST_SHAIN_CODE");
             sql.Append(" WHERE 1=1 ");
             //画面.年From、画面.月Fromの両方が入力されている場合
-            if (!cboYearFrom.Text.Equals("") & !cboMonthFrom.Text.Equals(""))
+            if (!cboYearFrom.SelectedValue.Equals("") & !cboMonthFrom.SelectedValue.Equals(""))
             {
-                sql.Append($" AND DATE_FORMAT(MST_SHAIN_TEKIYO_DATE_END, '%Y%m')  >= '{yyyyMMfrom}'");
-                sql.Append($" AND DATE_FORMAT(TEKIYO_END_DATE, '%Y%m') >= '{yyyyMMfrom}'");
+                sql.Append($" AND DATE_FORMAT(MST_SHAIN_TEKIYO_DATE_END, '%Y%m')  >= {yyyyMMfrom}");
+                sql.Append($" AND DATE_FORMAT(TEKIYO_END_DATE, '%Y%m') >= {yyyyMMfrom}");
             }
             //画面.年To、画面.月Toの両方が入力されている場合
-            if (!cboYearTo.Text.Equals("") & !cboMonthTo.Text.Equals(""))
+            if (!cboYearTo.SelectedValue.Equals("") & !cboMonthTo.SelectedValue.Equals(""))
             {
-                sql.Append($" AND DATE_FORMAT(MST_SHAIN_TEKIYO_DATE_STR, '%Y%m') <= '{yyyyMMto}'");
-                sql.Append($" AND DATE_FORMAT(TEKIYO_START_DATE, '%Y%m') <= '{yyyyMMto}'");
+                sql.Append($" AND DATE_FORMAT(MST_SHAIN_TEKIYO_DATE_STR, '%Y%m') <= {yyyyMMto}");
+                sql.Append($" AND DATE_FORMAT(TEKIYO_START_DATE, '%Y%m') <= {yyyyMMto}");
             }
 
             sql.Append(" GROUP BY MST_SHAIN_CODE ");
             sql.Append(" ORDER BY MST_SHAIN_CODE ");
 
-            try
-            {
-                //DB接続
-                dBManager = new DBManager();
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("DB接続に失敗しました。", "エラー");
-                return false;
-            }
-            try
-            {
-                dBManager.ExecuteQuery(sql.ToString(), ds);
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("メンターコンボボックスの取得に失敗しました", "エラー");
-                return false;
-            }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
+            //SQL処理
+            ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_003);
+            //SQL実行エラーの場合
+            returnFlg = ds != null ? true : false;
 
-            return true;
-
+            return returnFlg;
         }
 
         /// <summary>
         /// 入力チェック
         /// </summary>
         /// <returns></returns>
-        public bool check()
+        private bool CheckInsert()
         {
-            //年月
-            if (!cboYearFrom.Text.Equals("") & cboMonthFrom.Text.Equals(""))
+            //開始年が選択され、開始月が空白の場合
+            if (!cboYearFrom.SelectedValue.Equals("") & cboMonthFrom.SelectedValue.Equals(""))
             {
-                MessageBox.Show("年を選択した場合は月を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboMonthFrom;
+                MessageBox.Show(MSG.MSG007_004, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboMonthFrom;
                 return false;
             }
-            if (cboYearFrom.Text.Equals("") & !cboMonthFrom.Text.Equals(""))
+            //開始年が空白で、開始月が選択されている場合
+            if (cboYearFrom.SelectedValue.Equals("") & !cboMonthFrom.SelectedValue.Equals(""))
             {
-                MessageBox.Show("月を選択した場合は年を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboYearFrom;
+                MessageBox.Show(MSG.MSG007_005, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboYearFrom;
                 return false;
             }
-            if (!cboYearTo.Text.Equals("") & cboMonthTo.Text.Equals(""))
+            //終了年が選択され、終了月が空白の場合
+            if (!cboYearTo.SelectedValue.Equals("") & cboMonthTo.SelectedValue.Equals(""))
             {
-                MessageBox.Show("年を選択した場合は月を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboMonthTo;
+                MessageBox.Show(MSG.MSG007_004, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboMonthTo;
                 return false;
             }
-            if (cboYearTo.Text.Equals("") & !cboMonthTo.Text.Equals(""))
+            //終了年が空白で、終了月が選択されている場合
+            if (cboYearTo.SelectedValue.Equals("") & !cboMonthTo.SelectedValue.Equals(""))
             {
-                MessageBox.Show("月を選択した場合は年を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboYearTo;
+                MessageBox.Show(MSG.MSG007_005, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboYearTo;
                 return false;
             }
 
             //日付逆転チェック
-            string yyyyMMfrom = cboYearFrom.Text + cboMonthFrom.Text;
-            string yyyyMMto = cboYearTo.Text + cboMonthTo.Text;
-            if (yyyyMMfrom != "" && yyyyMMto != "")
+            string yyyyMMfrom = cboYearFrom.SelectedValue.ToString() + cboMonthFrom.SelectedValue.ToString();
+            string yyyyMMto = cboYearTo.SelectedValue.ToString() + cboMonthTo.SelectedValue.ToString();
+            //開始日と終了日が入力されている場合
+            if (!yyyyMMfrom.Equals("") && !yyyyMMto.Equals(""))
             {
+                //終了日が開始日より前の日付の場合
                 if (yyyyMMfrom.CompareTo(yyyyMMto) == 1)
                 {
-                    MessageBox.Show("年月が逆転しています", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    this.ActiveControl = cboYearFrom;
+                    MessageBox.Show(MSG.MSG007_006, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ActiveControl = cboYearFrom;
                     return false;
                 }
             }
@@ -221,18 +262,18 @@ namespace Menter
         /// <summary>
         /// 検索結果表示
         /// </summary>
-        public void Result()
+        private void Result()
         {
-            dgvIchiran.Columns.Clear();
+            dgvIchiran.Rows.Clear();
 
-            string yyyyMMfrom = cboYearFrom.Text + cboMonthFrom.Text;
-            string yyyyMMto = cboYearTo.Text + cboMonthTo.Text;
+            string yyyyMMfrom = cboYearFrom.SelectedValue.ToString() + cboMonthFrom.SelectedValue.ToString();
+            string yyyyMMto = cboYearTo.SelectedValue.ToString() + cboMonthTo.SelectedValue.ToString();
 
             StringBuilder sql = new StringBuilder();
             sql.Append(" SELECT ");
             sql.Append("     TRN_MENTOR_RESULT.EXEC_DATE");
-            sql.Append("     ,MENTOR.MST_SHAIN_NAME");
-            sql.Append("     ,MENTEE.MST_SHAIN_NAME");
+            sql.Append("     ,MENTOR.MST_SHAIN_NAME AS MENTOR_NAME");
+            sql.Append("     ,MENTEE.MST_SHAIN_NAME AS MENTEE_NAME");
             sql.Append("     ,PRICE");
             sql.Append("     ,MONTH_PRICE");
             sql.Append("     ,PLACE");
@@ -253,14 +294,14 @@ namespace Menter
             sql.Append("  AND MENTOR.MST_SHAIN_CODE = SUM_PRICE.MENTOR_ID");
             sql.Append(" WHERE STATUS=1");
             //画面.年月Fromが入力されている場合
-            if (!yyyyMMfrom.Equals(""))
+            if (!string.IsNullOrEmpty(yyyyMMfrom))
             {
-                sql.Append($" AND DATE_FORMAT(TRN_MENTOR_RESULT.EXEC_DATE, '%Y%m') >= '{yyyyMMfrom}'");
+                sql.Append($" AND DATE_FORMAT(TRN_MENTOR_RESULT.EXEC_DATE, '%Y%m') >= {yyyyMMfrom}");
             }
             //画面.年月Toが入力されている場合
-            if (!yyyyMMto.Equals(""))
+            if (!string.IsNullOrEmpty(yyyyMMto))
             {
-                sql.Append($" AND DATE_FORMAT(TRN_MENTOR_RESULT.EXEC_DATE, '%Y%m') <= '{yyyyMMto}'");
+                sql.Append($" AND DATE_FORMAT(TRN_MENTOR_RESULT.EXEC_DATE, '%Y%m') <= {yyyyMMto}");
             }
             //画面.メンターコンボボックスで"すべて"以外を選択した場合
             if (cboMentor.SelectedIndex != 0)
@@ -269,129 +310,60 @@ namespace Menter
             }
             sql.Append(" ORDER BY EXEC_DATE DESC");
 
-            DataSet ds = new DataSet();
-            try
+            //SQL処理
+            DataSet ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
+            //実行エラー時
+            if (ds == null)
             {
-                //DB接続
-                dBManager = new DBManager();
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("DB接続に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            try
-            {
-                dBManager.ExecuteQuery(sql.ToString(), ds);
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("SQLの実行に失敗しました", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
+
+            //検索結果が0件の場合
             if (ds.Tables[0].Rows.Count == 0)
             {
-                MessageBox.Show("対象がありません");
+                MessageBox.Show(MSG.MSG007_002);
             }
 
-            dgvIchiran.DataSource = ds.Tables[0];
-
-            dgvIchiran.Columns[(int)column.EXEC_DATE].HeaderText = "実施日";
-            dgvIchiran.Columns[(int)column.MENTOR_NAME].HeaderText = "メンター";
-            dgvIchiran.Columns[(int)column.MENTEE_NAME].HeaderText = "メンティー";
-            dgvIchiran.Columns[(int)column.PRICE].HeaderText = "経費（円）";
-            dgvIchiran.Columns[(int)column.MONTH_PRICE].HeaderText = "月合計（円）";
-            dgvIchiran.Columns[(int)column.PLACE].HeaderText = "実施場所";
-
-
-            dgvIchiran.Columns[(int)column.EXEC_DATE].Width = 200;
-            dgvIchiran.Columns[(int)column.MENTOR_NAME].Width = 130;
-            dgvIchiran.Columns[(int)column.MENTEE_NAME].Width = 130;
-            dgvIchiran.Columns[(int)column.PRICE].Width = 150;
-            dgvIchiran.Columns[(int)column.MONTH_PRICE].Width = 130;
-            dgvIchiran.Columns[(int)column.PLACE].Width = 130;
-
-            dgvIchiran.Columns[(int)column.PRICE].DefaultCellStyle.Format = "#,0";
-            dgvIchiran.Columns[(int)column.MONTH_PRICE].DefaultCellStyle.Format = "#,0";
-            dgvIchiran.Columns[(int)column.PRICE].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dgvIchiran.Columns[(int)column.MONTH_PRICE].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            foreach (DataGridViewColumn column in this.dgvIchiran.Columns)
-            {
-                column.SortMode = DataGridViewColumnSortMode.NotSortable;
-                column.ReadOnly = true;
-            }
-            dgvIchiran.ColumnHeadersDefaultCellStyle.BackColor = Color.LightBlue;
+            //取得データを一覧表示
+            dgvIchiran.Rows.Clear();
+            Enumerable.Range(0, ds.Tables[0].Rows.Count).Select(idx => ds.Tables[0].Rows[idx] as DataRow).ToList()
+                .ForEach(dr => {
+                    dgvIchiran.Rows.Add();
+                    int indx = dgvIchiran.Rows.Count - 1;
+                    dgvIchiran.Rows[indx].Cells["EXEC_DATE"].Value = Convert.ToDateTime(dr["EXEC_DATE"].ToString()).ToString("yyyy/MM/dd");
+                    dgvIchiran.Rows[indx].Cells["MENTOR_NAME"].Value = dr["MENTOR_NAME"].ToString();
+                    dgvIchiran.Rows[indx].Cells["MENTEE_NAME"].Value = dr["MENTEE_NAME"].ToString();
+                    dgvIchiran.Rows[indx].Cells["PRICE"].Value = dr["PRICE"].ToString();
+                    dgvIchiran.Rows[indx].Cells["MONTH_PRICE"].Value = dr["MONTH_PRICE"].ToString();
+                    dgvIchiran.Rows[indx].Cells["PLACE"].Value = dr["PLACE"].ToString();
+                });
 
 
+            //for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+            //{
+            //    dgvIchiran.Rows.Add();
+            //    dgvIchiran.Rows[i].Cells[(int)Column.EXEC_DATE].Value = ((DateTime) ds.Tables[0].Rows[i][(int)Column.EXEC_DATE]).ToString("yyyy/MM/dd");
+            //    dgvIchiran.Rows[i].Cells[(int)Column.MENTOR_NAME].Value = ds.Tables[0].Rows[i][(int)Column.MENTOR_NAME].ToString();
+            //    dgvIchiran.Rows[i].Cells[(int)Column.MENTEE_NAME].Value = ds.Tables[0].Rows[i][(int)Column.MENTEE_NAME].ToString();
+            //    dgvIchiran.Rows[i].Cells[(int)Column.PRICE].Value = ds.Tables[0].Rows[i][(int)Column.PRICE].ToString();
+            //    dgvIchiran.Rows[i].Cells[(int)Column.MONTH_PRICE].Value = ds.Tables[0].Rows[i][(int)Column.MONTH_PRICE].ToString();
+            //    dgvIchiran.Rows[i].Cells[(int)Column.PLACE].Value = ds.Tables[0].Rows[i][(int)Column.PLACE].ToString();
+            //}
         }
 
         /// <summary>
         /// クリア処理
         /// </summary>
-        public void Clear()
+        private void Clear()
         {
-            dgvIchiran.Columns.Clear();
-            flg = false;
+            dgvIchiran.Rows.Clear();
+            initialFlg = false;
+            //初期化処理
             Initialization();
         }
+        #endregion
 
-        /// <summary>
-        /// 年From変更処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cboYearFrom_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                SetMentor();
-            }
-        }
-
-        /// <summary>
-        /// 月From変更処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cboMonthFrom_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                SetMentor();
-            }
-        }
-
-        /// <summary>
-        /// 年To変更処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cboYearTo_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                SetMentor();
-            }
-        }
-
-        /// <summary>
-        /// 月To変更処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cboMonthTo_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                SetMentor();
-            }
-        }
-
+        #region ボタンイベント
         /// <summary>
         /// 表示ボタン
         /// </summary>
@@ -399,10 +371,12 @@ namespace Menter
         /// <param name="e"></param>
         private void btnCreate_Click(object sender, EventArgs e)
         {
-            if (!check())
+            //入力チェック
+            if (!CheckInsert())
             {
                 return;
             }
+            //検索結果表示
             Result();
         }
 
@@ -423,9 +397,8 @@ namespace Menter
         /// <param name="e"></param>
         private void btnReturn_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
-
-
+        #endregion
     }
 }

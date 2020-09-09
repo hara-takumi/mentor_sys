@@ -14,12 +14,11 @@ namespace Menter
 {
     class CommonUtil
     {
+        #region メンバー変数
         DBManager dBManager;
+        #endregion
 
-
-
-
-
+        #region メソッド
         /// <summary>
         /// 時間を取得
         /// </summary>
@@ -59,7 +58,7 @@ namespace Menter
         public List<string> CYear(bool brankFlg)
         {
             List<string> listYear = new List<string>();
-            DateTime dt = System.DateTime.Now;
+            DateTime dt = DateTime.Now;
             string str;
             for (int i = dt.Year - 10; i <= dt.Year + 1; i++)
             {
@@ -149,7 +148,6 @@ namespace Menter
 
                 if (allFlg)
                 {
-
                     DataRow row = dt.NewRow();
                     row["CD"] = "0";
                     row["NAME"] = "すべて";
@@ -159,15 +157,13 @@ namespace Menter
                 ds.Tables.Add(dt);
 
                 return true;
-
             }
-            catch (MySqlException me)
+            catch (MySqlException)
             {
                 MessageBox.Show("DBの接続に失敗しました。", "エラー");
                 return false;
             }
         }
-
 
         /// <summary>
         /// 作業コンボボックス設定
@@ -218,40 +214,42 @@ namespace Menter
                     return false;
                 }
 
-
                 ds.Tables.Add(dt);
 
                 return true;
-
             }
-            catch (MySqlException me)
+            catch (MySqlException)
             {
                 MessageBox.Show("DBの接続に失敗しました。", "エラー");
                 return false;
             }
         }
 
-
-
-
         /// <summary>
         /// 文字列を'でくくる
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public string CAddQuotation(string str)
-        {
-            return "'" + str + "'";
-        }
+        public string CAddQuotation(string str) => "'" + str + "'";
 
         /// <summary>
         /// 文字列の/を削除
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public string CReplace(string str)
+        public string CReplace(string str) => str.Replace("/", "");
+
+        /// <summary>
+        /// DateTimePickerの値から日付を取得
+        /// </summary>
+        public string GetDateTimePick(DateTime? dateTime)
         {
-            return str.Replace("/", "");
+            //取得した日付がnull以外の場合、年月日を取得
+            string result = null;
+            result = !string.IsNullOrEmpty(dateTime.ToString())
+                ? ((DateTime)dateTime).ToString("yyyyMMdd") : result;
+
+            return result;
         }
 
         /// <summary>
@@ -268,7 +266,7 @@ namespace Menter
                 //DB接続
                 dBManager = new DBManager();
             }
-            catch (MySqlException ex)
+            catch (MySqlException)
             {
                 MessageBox.Show("DB接続に失敗しました。", "エラー");
                 return false;
@@ -285,7 +283,7 @@ namespace Menter
             {
                 dBManager.ExecuteQuery(sql.ToString(), ds);
             }
-            catch (MySqlException ex)
+            catch (MySqlException)
             {
                 MessageBox.Show("SQLの実行に失敗しました。", "エラー");
                 return false;
@@ -358,7 +356,6 @@ namespace Menter
         /// <returns></returns>
         public bool DeleteHaitaTrn(string id)
         {
-
             try
             {
                 //DB接続
@@ -400,8 +397,6 @@ namespace Menter
         /// <returns></returns>
         public bool DeleteHaitaUser(string user)
         {
-
-
             try
             {
                 //DB接続
@@ -456,8 +451,27 @@ namespace Menter
                 // 16進の数値を文字列として取り出す
                 buf.AppendFormat("{0:X2}", hash256Value[i]);
             }
-            return buf.ToString();
 
+            return buf.ToString();
         }
+
+        /// <summary>
+        ///     文字列が数値であるかどうかを返します。</summary>
+        /// <param name="stTarget">
+        ///     検査対象となる文字列。<param>
+        /// <returns>
+        ///     指定した文字列が数値であれば true。それ以外は false。</returns>
+        public bool IsNumeric(string stTarget)
+        {
+            double dNullable;
+
+            return double.TryParse(
+                stTarget,
+                System.Globalization.NumberStyles.Any,
+                null,
+                out dNullable
+            );
+        }
+        #endregion
     }
 }

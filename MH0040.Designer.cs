@@ -29,7 +29,8 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.txtTitle = new System.Windows.Forms.Label();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            this.lblTitle = new System.Windows.Forms.Label();
             this.btnReturn = new System.Windows.Forms.Button();
             this.btnReport = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
@@ -89,6 +90,15 @@
             this.lblComment = new System.Windows.Forms.Label();
             this.cboMentee = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.COMMENT_ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CORRECT_FLG = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.CORRECT_FLG_OLD = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.EMPLOYEE_ID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.EMPLOYEE_NM = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CONTENT = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CONTENT_OLD = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.WRITER_DATE = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.STETUS = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvIchiran)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dtpDatePlan)).BeginInit();
@@ -96,16 +106,16 @@
             ((System.ComponentModel.ISupportInitialize)(this.dtpExecDate)).BeginInit();
             this.SuspendLayout();
             // 
-            // txtTitle
+            // lblTitle
             // 
-            this.txtTitle.AutoSize = true;
-            this.txtTitle.Font = new System.Drawing.Font("MS UI Gothic", 20F);
-            this.txtTitle.Location = new System.Drawing.Point(24, 17);
-            this.txtTitle.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
-            this.txtTitle.Name = "txtTitle";
-            this.txtTitle.Size = new System.Drawing.Size(254, 27);
-            this.txtTitle.TabIndex = 0;
-            this.txtTitle.Text = "メンター活動実績入力";
+            this.lblTitle.AutoSize = true;
+            this.lblTitle.Font = new System.Drawing.Font("MS UI Gothic", 20F);
+            this.lblTitle.Location = new System.Drawing.Point(24, 17);
+            this.lblTitle.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(254, 27);
+            this.lblTitle.TabIndex = 0;
+            this.lblTitle.Text = "メンター活動実績入力";
             // 
             // btnReturn
             // 
@@ -184,18 +194,40 @@
             // 
             // dgvIchiran
             // 
-            this.dgvIchiran.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            this.dgvIchiran.AllowUserToAddRows = false;
+            this.dgvIchiran.AllowUserToResizeColumns = false;
+            this.dgvIchiran.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle1.Font = new System.Drawing.Font("MS UI Gothic", 16F);
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvIchiran.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvIchiran.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            this.dgvIchiran.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvIchiran.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.COMMENT_ID,
+            this.CORRECT_FLG,
+            this.CORRECT_FLG_OLD,
+            this.EMPLOYEE_ID,
+            this.EMPLOYEE_NM,
+            this.CONTENT,
+            this.CONTENT_OLD,
+            this.WRITER_DATE,
+            this.STETUS});
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("MS UI Gothic", 16F);
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvIchiran.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgvIchiran.Location = new System.Drawing.Point(575, 524);
             this.dgvIchiran.Name = "dgvIchiran";
-            this.dgvIchiran.RowTemplate.Height = 21;
+            this.dgvIchiran.RowHeadersVisible = false;
+            this.dgvIchiran.RowTemplate.Height = 50;
             this.dgvIchiran.Size = new System.Drawing.Size(633, 150);
             this.dgvIchiran.TabIndex = 20;
             this.dgvIchiran.CellValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvIchiran_CellValidated);
@@ -330,7 +362,7 @@
             this.cboPlanEndM.Name = "cboPlanEndM";
             this.cboPlanEndM.Size = new System.Drawing.Size(54, 29);
             this.cboPlanEndM.TabIndex = 15;
-            this.cboPlanEndM.TextChanged += new System.EventHandler(this.cboPlanEndM_TextChanged);
+            this.cboPlanEndM.SelectedValueChanged += new System.EventHandler(this.cboPlanEndM_SelectedValueChanged);
             // 
             // cboPlanEndH
             // 
@@ -343,7 +375,7 @@
             this.cboPlanEndH.Name = "cboPlanEndH";
             this.cboPlanEndH.Size = new System.Drawing.Size(54, 29);
             this.cboPlanEndH.TabIndex = 14;
-            this.cboPlanEndH.TextChanged += new System.EventHandler(this.cboPlanEndH_TextChanged);
+            this.cboPlanEndH.SelectedValueChanged += new System.EventHandler(this.cboPlanEndH_SelectedValueChanged);
             // 
             // label13
             // 
@@ -366,7 +398,7 @@
             this.cboPlanStartM.Name = "cboPlanStartM";
             this.cboPlanStartM.Size = new System.Drawing.Size(54, 29);
             this.cboPlanStartM.TabIndex = 13;
-            this.cboPlanStartM.TextChanged += new System.EventHandler(this.cboPlanStartM_TextChanged);
+            this.cboPlanStartM.SelectedValueChanged += new System.EventHandler(this.cboPlanStartM_SelectedValueChanged);
             // 
             // cboPlanStartH
             // 
@@ -379,7 +411,7 @@
             this.cboPlanStartH.Name = "cboPlanStartH";
             this.cboPlanStartH.Size = new System.Drawing.Size(54, 29);
             this.cboPlanStartH.TabIndex = 12;
-            this.cboPlanStartH.TextChanged += new System.EventHandler(this.cboPlanStartH_TextChanged);
+            this.cboPlanStartH.SelectedValueChanged += new System.EventHandler(this.cboPlanStartH_SelectedValueChanged);
             // 
             // txtPrice
             // 
@@ -423,7 +455,7 @@
             this.cboEndM.Name = "cboEndM";
             this.cboEndM.Size = new System.Drawing.Size(54, 29);
             this.cboEndM.TabIndex = 8;
-            this.cboEndM.TextChanged += new System.EventHandler(this.cboEndM_TextChanged);
+            this.cboEndM.SelectedValueChanged += new System.EventHandler(this.cboEndM_SelectedValueChanged);
             // 
             // cboEndH
             // 
@@ -436,7 +468,7 @@
             this.cboEndH.Name = "cboEndH";
             this.cboEndH.Size = new System.Drawing.Size(54, 29);
             this.cboEndH.TabIndex = 7;
-            this.cboEndH.TextChanged += new System.EventHandler(this.cboEndH_TextChanged);
+            this.cboEndH.SelectedValueChanged += new System.EventHandler(this.cboEndH_SelectedValueChanged);
             // 
             // label4
             // 
@@ -459,7 +491,7 @@
             this.cboStartM.Name = "cboStartM";
             this.cboStartM.Size = new System.Drawing.Size(54, 29);
             this.cboStartM.TabIndex = 6;
-            this.cboStartM.TextChanged += new System.EventHandler(this.cboStartM_TextChanged);
+            this.cboStartM.SelectedValueChanged += new System.EventHandler(this.cboStartM_SelectedValueChanged);
             // 
             // cboStartH
             // 
@@ -472,7 +504,7 @@
             this.cboStartH.Name = "cboStartH";
             this.cboStartH.Size = new System.Drawing.Size(54, 29);
             this.cboStartH.TabIndex = 5;
-            this.cboStartH.TextChanged += new System.EventHandler(this.cboStartH_TextChanged);
+            this.cboStartH.SelectedValueChanged += new System.EventHandler(this.cboStartH_SelectedValueChanged);
             // 
             // label6
             // 
@@ -745,6 +777,7 @@
             this.cboMentee.Name = "cboMentee";
             this.cboMentee.Size = new System.Drawing.Size(158, 29);
             this.cboMentee.TabIndex = 110;
+            this.cboMentee.SelectedValueChanged += new System.EventHandler(this.cboMentee_SelectedValueChanged);
             // 
             // label1
             // 
@@ -754,6 +787,84 @@
             this.label1.Size = new System.Drawing.Size(98, 22);
             this.label1.TabIndex = 111;
             this.label1.Text = "次回実施";
+            // 
+            // COMMENT_ID
+            // 
+            this.COMMENT_ID.DataPropertyName = "COMMENT_ID";
+            this.COMMENT_ID.HeaderText = "コメントID";
+            this.COMMENT_ID.Name = "COMMENT_ID";
+            this.COMMENT_ID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.COMMENT_ID.Visible = false;
+            // 
+            // CORRECT_FLG
+            // 
+            this.CORRECT_FLG.DataPropertyName = "CORRECT_FLG";
+            this.CORRECT_FLG.FalseValue = "0";
+            this.CORRECT_FLG.HeaderText = "";
+            this.CORRECT_FLG.Name = "CORRECT_FLG";
+            this.CORRECT_FLG.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.CORRECT_FLG.TrueValue = "1";
+            this.CORRECT_FLG.Width = 30;
+            // 
+            // CORRECT_FLG_OLD
+            // 
+            this.CORRECT_FLG_OLD.DataPropertyName = "CORRECT_FLG_OLD";
+            this.CORRECT_FLG_OLD.FalseValue = "0";
+            this.CORRECT_FLG_OLD.HeaderText = "OLD_FLG";
+            this.CORRECT_FLG_OLD.Name = "CORRECT_FLG_OLD";
+            this.CORRECT_FLG_OLD.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.CORRECT_FLG_OLD.TrueValue = "1";
+            this.CORRECT_FLG_OLD.Visible = false;
+            // 
+            // EMPLOYEE_ID
+            // 
+            this.EMPLOYEE_ID.DataPropertyName = "EMPLOYEE_ID";
+            this.EMPLOYEE_ID.HeaderText = "社員ID";
+            this.EMPLOYEE_ID.Name = "EMPLOYEE_ID";
+            this.EMPLOYEE_ID.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.EMPLOYEE_ID.Visible = false;
+            // 
+            // EMPLOYEE_NM
+            // 
+            this.EMPLOYEE_NM.DataPropertyName = "EMPLOYEE_NM";
+            this.EMPLOYEE_NM.HeaderText = "記入者";
+            this.EMPLOYEE_NM.Name = "EMPLOYEE_NM";
+            this.EMPLOYEE_NM.ReadOnly = true;
+            this.EMPLOYEE_NM.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.EMPLOYEE_NM.Width = 110;
+            // 
+            // CONTENT
+            // 
+            this.CONTENT.DataPropertyName = "CONTENT";
+            this.CONTENT.HeaderText = "内容";
+            this.CONTENT.Name = "CONTENT";
+            this.CONTENT.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.CONTENT.Width = 280;
+            // 
+            // CONTENT_OLD
+            // 
+            this.CONTENT_OLD.DataPropertyName = "CONTENT_OLD";
+            this.CONTENT_OLD.HeaderText = "OLDコメント";
+            this.CONTENT_OLD.Name = "CONTENT_OLD";
+            this.CONTENT_OLD.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.CONTENT_OLD.Visible = false;
+            // 
+            // WRITER_DATE
+            // 
+            this.WRITER_DATE.DataPropertyName = "WRITER_DATE";
+            this.WRITER_DATE.HeaderText = "記入日時";
+            this.WRITER_DATE.Name = "WRITER_DATE";
+            this.WRITER_DATE.ReadOnly = true;
+            this.WRITER_DATE.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.WRITER_DATE.Width = 180;
+            // 
+            // STETUS
+            // 
+            this.STETUS.DataPropertyName = "STETUS";
+            this.STETUS.HeaderText = "STETUS";
+            this.STETUS.Name = "STETUS";
+            this.STETUS.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.STETUS.Visible = false;
             // 
             // MH0040
             // 
@@ -781,7 +892,7 @@
             this.Controls.Add(this.txtReport);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.btnReturn);
-            this.Controls.Add(this.txtTitle);
+            this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.dtpExecDate);
             this.Controls.Add(this.cboMentee);
             this.Controls.Add(this.label20);
@@ -796,10 +907,9 @@
             this.Font = new System.Drawing.Font("MS UI Gothic", 16F);
             this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.Name = "MH0040";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MH0040";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MH0040_FormClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.Form4_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvIchiran)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -814,7 +924,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Label txtTitle;
+        private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Button btnReturn;
         private System.Windows.Forms.Button btnReport;
         private System.Windows.Forms.Label label3;
@@ -874,6 +984,15 @@
         private System.Windows.Forms.Label lblMentee;
         private System.Windows.Forms.ComboBox cboMentee;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn COMMENT_ID;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn CORRECT_FLG;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn CORRECT_FLG_OLD;
+        private System.Windows.Forms.DataGridViewTextBoxColumn EMPLOYEE_ID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn EMPLOYEE_NM;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CONTENT;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CONTENT_OLD;
+        private System.Windows.Forms.DataGridViewTextBoxColumn WRITER_DATE;
+        private System.Windows.Forms.DataGridViewTextBoxColumn STETUS;
     }
 }
 

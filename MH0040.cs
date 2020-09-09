@@ -9,108 +9,331 @@ using System.Windows.Forms;
 
 namespace Menter
 {
-    public partial class MH0040 : Form
+    public partial class MH0040 : BaseForm
     {
-        CommonUtil comU = new CommonUtil();
+        #region メンバー変数
+        private readonly CommonUtil comU = new CommonUtil();
         DBManager dBManager;
-        private User user;
-        string programId = "MH0040";
-        DateTime dt = System.DateTime.Now;
-        public bool torokuFlg = false;
-        public bool flg = false;
-        public bool changeFlg = false;
-        public bool rowInsertFlg = false;
-        bool shokaiMode = false;
-        private List<String> delList = new List<string>();
+        private readonly DBUtli dbUtil = new DBUtli();
+        private readonly Logger log = new Logger();
+        private readonly string programId = "MH0040";
+        private bool torokuFlg = false;
+        private bool initialFlg = false;
+        private bool changeFlg = false;
+        private bool returnFlg = true;
+        private bool shokaiMode = false;
+        private readonly List<String> delList = new List<string>();
+        private readonly List<string> _resultIdList;
+        private readonly string _mentorResultId;
+        DataSet dsComent = new DataSet();
+        #endregion
 
-        public List<string> _resultIdList;
-        public string _mentorResultId;
-        public int _mode;
-        public string _resultId;
+        #region プロパティ
+        /// <summary>
+        /// 再検索用
+        /// </summary>
+        public bool TorokuFlg { get => torokuFlg; set => torokuFlg = value; }
+        #endregion
 
-        private enum mode
+        #region コンストラクタ
+        //MH0030から遷移時のコンストラクタ
+        public MH0040(List<string> list)
         {
-            MENTA,
-            SUISHINBU
-        }
-
-        public enum column
-        {
-            COMMENT_ID,
-            CORRECT_FLG,
-            CORRECT_FLG_OLD,
-            EMPLOYEE_ID,
-            EMPLOYEE_NM,
-            CONTENT,
-            CONTENT_OLD,
-            WRITER_DATE,
-            STETUS
-        }
-
-        public enum hyouji
-        {
-            MENTOR_ID,
-            MENTOR_NM,
-            MENTEE_ID,
-            MENTEE_NM,
-            EXEC_DATE,
-            STATUS,
-            START_TIME,
-            END_TIME,
-            PLACE,
-            PRICE,
-            DATE_PLAN,
-            START_PLAN_TIME,
-            END_PLAN_TIME,
-            PLAN_PLACE,
-            OTHER,
-        }
-
-        public MH0040(User user, List<string> list)
-        {
-            this.user = user;
             _resultIdList = list;
             _mentorResultId = "";
             InitializeComponent();
         }
 
-        public MH0040(User user, List<string> list, string mentorResultId)
+        /// <summary>
+        /// 矢印ボタン押下時のコンストラクタ
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="mentorResultId"></param>
+        public MH0040(List<string> list, string mentorResultId)
         {
-            this.user = user;
             _resultIdList = list;
             _mentorResultId = mentorResultId;
             InitializeComponent();
         }
+        #endregion
 
-        public MH0040(User user, List<string> list, string mentorResultId, int mode)
-        {
-            this.user = user;
-            _resultIdList = list;
-            _mentorResultId = mentorResultId;
-            _mode = mode;
-            InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
+        #region イベント処理
+        /// <summary>
+        /// 初期表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Form4_Load(object sender, EventArgs e)
         {
             Initialization();
         }
+
+        /// <summary>
+        /// メンティ―コンボ変更処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboMentee_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施開始時間変更処理(時)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboStartH_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施開始時間変更処理(分)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboStartM_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施終了時間変更処理(時)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboEndH_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施終了時間変更処理(分)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboEndM_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施予定開始時間変更処理(時)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboPlanStartH_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施予定開始時間変更処理(分)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboPlanStartM_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施予定終了時間変更処理(時)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboPlanEndH_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施予定終了時間変更処理(分)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cboPlanEndM_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施場所変更処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void txtPlace_TextChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 経費変更処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void txtPrice_TextChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            if (initialFlg)
+            {
+                int selection = txtPrice.SelectionStart;
+                int changeBeforelength = txtPrice.Text.Length;
+                changeFlg = true;
+                //経費が空白以外の場合
+                if (!string.IsNullOrEmpty(txtPrice.Text))
+                {
+                    //数値以外入力不可
+                    if (!comU.IsNumeric(txtPrice.Text.Replace(",", "")))
+                    {
+                        txtPrice.Text = "";
+                        return;
+                    }
+                    //マイナス入力不可
+                    if (int.Parse(txtPrice.Text.Replace(",", "")) < 0)
+                    {
+                        txtPrice.Text = "";
+                        return;
+                    }
+                    //5桁以上入力不可
+                    if (int.Parse(txtPrice.Text.Replace(",", "")) > 99999)
+                    {
+                        txtPrice.Text = "";
+                        return;
+                    }
+                    txtPrice.Text = int.Parse(txtPrice.Text.Replace(",", "")).ToString("#,0");
+                    //変更前の経費より変更後の経費の桁が大きい場合
+                    if (changeBeforelength < txtPrice.Text.Length)
+                    {
+                        selection += 1;
+                    }
+                    //変更前の経費より変更後の経費の桁が小さい場合
+                    else if (changeBeforelength > txtPrice.Text.Length)
+                    {
+                        //桁数が0より大きい場合
+                        selection = selection > 0 ? selection -= 1 : selection;
+                    }
+                }
+
+                txtPrice.Select(selection, 0);
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 報告変更処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void txtReport_TextChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// セルクリック時の処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dgvIchiran_CellValidated(object sender, DataGridViewCellEventArgs e)
+        {
+            //初期表示時は通らない
+            if (initialFlg)
+            {
+                //未報告以外の場合
+                if (dgvIchiran["STETUS", e.RowIndex].Value.ToString() != CommonConstants.Status.MIHOUKOKU)
+                {
+                    //コメント・チェックボックスが変更されていない場合
+                    if (dgvIchiran["CONTENT", e.RowIndex].Value.ToString().Equals(dgvIchiran["CONTENT_OLD", e.RowIndex].Value.ToString()) &&
+                        dgvIchiran["CORRECT_FLG", e.RowIndex].Value.ToString().Equals(dgvIchiran["CORRECT_FLG_OLD", e.RowIndex].Value.ToString()))
+                    {
+                        dgvIchiran["STETUS", e.RowIndex].Value = "0";
+                    }
+                    else
+                    {
+                        dgvIchiran["STETUS", e.RowIndex].Value = CommonConstants.Status.HOUKOKUZUMI;
+                        //推進部の場合
+                        if (Mode.Id == CommonConstants.ModeKbn.SUISINBU_ID)
+                        {
+                            dgvIchiran["CORRECT_FLG", e.RowIndex].Value = false;
+                        }
+                        changeFlg = true;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 数字のみ入力
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void txtPrice_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //0～9と、バックスペース以外の時は、イベントをキャンセルする
+            if ((e.KeyChar < '0' || '9' < e.KeyChar) && e.KeyChar != '\b' && (Control.ModifierKeys & Keys.Control) != Keys.Control)
+            {
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// 実施予定日変更時の処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dtpDatePlan_ValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            changeFlg = initialFlg ? true : false;
+        }
+
+        /// <summary>
+        /// 実施日変更時の処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dtpExecDate_ValueChanged(object sender, EventArgs e)
+        {
+            //初期表示時は通らない
+            if (initialFlg)
+            {
+                changeFlg = true;
+                //コンボボックスをセット
+                SetCbo();
+            }
+        }
+        #endregion
+
+        #region メソッド
         /// <summary>
         /// コンボセット
         /// </summary>
-        private void setCbo()
+        private void SetCbo()
         {
-
+            //実施時間を設定
             cboStartH.DataSource = comU.CHour().ToArray();
             cboEndH.DataSource = comU.CHour().ToArray();
             cboStartM.DataSource = comU.CMinute().ToArray();
             cboEndM.DataSource = comU.CMinute().ToArray();
-
+            //実施予定時間を設定
             cboPlanStartH.DataSource = comU.CHour().ToArray();
             cboPlanEndH.DataSource = comU.CHour().ToArray();
             cboPlanStartM.DataSource = comU.CMinute().ToArray();
             cboPlanEndM.DataSource = comU.CMinute().ToArray();
-
+            //メンターに紐づくメンティ―を設定
             SetMentee();
         }
 
@@ -119,29 +342,20 @@ namespace Menter
         /// </summary>
         private void Initialization()
         {
-
-            //セルの内容に合わせて、行の高さが自動的に調節されるようにする
-            dgvIchiran.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-
-            //"Column1"列のセルのテキストを折り返して表示する
-            dgvIchiran.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-
-            dgvIchiran.RowTemplate.Height = 50;
-            dgvIchiran.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dgvIchiran.AllowUserToAddRows = false;
-            dgvIchiran.RowHeadersVisible = false;
-            dgvIchiran.AllowUserToResizeColumns = false;
-
-            lblUser.Text = user.Name;
+            //ログインユーザー表示
+            lblUser.Text = User.Name;
 
             //新規(遷移元から引数としてメンター実績IDを取得していない)の場合
-            if (_mentorResultId.Equals(""))
+            if (string.IsNullOrEmpty(_mentorResultId))
             {
-                dtpExecDate.Value = System.DateTime.Now;
+                //実施日を現在日表示
+                //選択可能な最大実施日を現在日時に設定
+                dtpExecDate.Value = DateTime.Now;
                 dtpExecDate.MaxDate = DateTime.Now;
                 //コンボボックス設定
-                setCbo();
+                SetCbo();
 
+                //コントロール設定
                 btnUp.Enabled = false;
                 pnlPromote.Visible = false;
                 lblMenta.Visible = false;
@@ -152,19 +366,19 @@ namespace Menter
                 btnRemand.Visible = false;
                 btnDelete.Visible = false;
 
-                cboStartH.SelectedIndex = -1;
-                cboStartM.SelectedIndex = -1;
-                cboEndH.SelectedIndex = -1;
-                cboEndM.SelectedIndex = -1;
-                cboPlanStartH.SelectedIndex = -1;
-                cboPlanStartM.SelectedIndex = -1;
-                cboPlanEndH.SelectedIndex = -1;
-                cboPlanEndM.SelectedIndex = -1;
+                //実施時間・予定時間コンボの初期表示を空白に設定
+                cboStartH.SelectedIndex = 0;
+                cboStartM.SelectedIndex = 0;
+                cboEndH.SelectedIndex = 0;
+                cboEndM.SelectedIndex = 0;
+                cboPlanStartH.SelectedIndex = 0;
+                cboPlanStartM.SelectedIndex = 0;
+                cboPlanEndH.SelectedIndex = 0;
+                cboPlanEndM.SelectedIndex = 0;
             }
             //更新(遷移元から引数としてメンター実績IDを取得)の場合
             else
             {
-
                 //最初の行の場合、"←"非活性
                 if (_mentorResultId.Equals(_resultIdList.First()))
                 {
@@ -176,47 +390,55 @@ namespace Menter
                     return;
                 }
 
-
                 DataSet ds = new DataSet();
                 //メンター実績取得
                 GetResult(ref ds);
+                DataRow dr = ds.Tables[0].AsEnumerable().First();
 
-                string status = ds.Tables[0].Rows[0][(int)hyouji.STATUS].ToString();
+                string status = dr["STATUS"].ToString();
 
                 //推進チーム用の場合
-                if (_mode == (int)mode.SUISHINBU)
+                if (Mode.Id == CommonConstants.ModeKbn.SUISINBU_ID)
                 {
+                    //一時保存・削除ボタンを非表示
                     btnSave.Visible = false;
                     btnDelete.Visible = false;
-                    dispReported(ds);
-                    //最終行の場合→非活性
+                    //報告済みデータを表示
+                    DispReported(dr);
+                    //最終行の場合"→"非活性
                     if (_mentorResultId.Equals(_resultIdList.Last()))
                     {
                         btnUp.Enabled = false;
                     }
                     //差戻の場合、差戻ボタン非表示
-                    if (status.Equals("2"))
+                    if (status.Equals(CommonConstants.Status.SASIMODOSI))
                     {
                         btnRemand.Visible = false;
                     }
                     lblComment.Visible = false;
-                    txtTitle.Text = "メンター活動実績確認";
+                    lblTitle.Text = "メンター活動実績確認";
                 }
                 //メンター用の場合
                 else
                 {
-                    if (status.Equals("0"))
+                    //未報告の場合
+                    if (status.Equals(CommonConstants.Status.MIHOUKOKU))
                     {
-                        dispNotReported(ds);
+                        //初期値を表示
+                        DispNotReported(dr);
                     }
-                    else if (status.Equals("2"))
+                    //差し戻しの場合
+                    else if (status.Equals(CommonConstants.Status.SASIMODOSI))
                     {
-                        dispNotReported(ds);
+                        //差し戻しデータを表示
+                        DispNotReported(dr);
                         btnSave.Visible = false;
                     }
+                    //報告済みの場合
                     else
                     {
-                        dispReported(ds);
+                        //報告済みデータを表示
+                        DispReported(dr);
                     }
 
                     lblMenta.Visible = false;
@@ -228,7 +450,6 @@ namespace Menter
 
                 //排他登録
                 TorokuHaita();
-
             }
             //メンター実績ID配列が0件でない場合
             if (_resultIdList.Count == 0)
@@ -236,171 +457,185 @@ namespace Menter
                 btnUp.Enabled = false;
                 btnDn.Enabled = false;
             }
-            flg = true;
 
+            //初期表示フラグ
+            initialFlg = true;
         }
+
         /// <summary>
         /// 取得した時刻をラベルへセット
         /// </summary>
-        private void setTimeLbl(string startTime, string endTime, Label setLbl)
+        private void SetTimeLbl(string startTime, string endTime, Label setLbl)
         {
             string startTimeH = "";
             string startTimeM = "";
             string endTimeH = "";
             string endTimeM = "";
-            if (!startTime.Equals(""))
+            //開始時刻が入力されている場合
+            if (!string.IsNullOrEmpty(startTime))
             {
                 startTimeH = startTime.Substring(0, 2) + "：";
                 startTimeM = startTime.Substring(2, 2);
             }
-            if (!endTime.Equals(""))
+            //終了時刻が入力されている場合
+            if (!string.IsNullOrEmpty(endTime))
             {
                 endTimeH = endTime.Substring(0, 2) + "：";
                 endTimeM = endTime.Substring(2, 2);
             }
-            if (!string.IsNullOrEmpty(startTime) || !string.IsNullOrEmpty(endTime))
-            {
-                setLbl.Text = startTimeH + startTimeM + "～" + endTimeH + endTimeM;
-            }
-            else
-            {
-                setLbl.Text = "";
-            }
+            //開始時刻と終了時刻が入力されている場合
+            setLbl.Text = !string.IsNullOrEmpty(startTime) || !string.IsNullOrEmpty(endTime) ?
+                startTimeH + startTimeM + "～" + endTimeH + endTimeM : "";
         }
+
         /// <summary>
-        /// 更新:報告済み
+        /// 報告済みデータ表示(更新で遷移した場合)
         /// </summary>
-        private void dispReported(DataSet ds)
+        private void DispReported(DataRow dr)
         {
-            DateTime execDate = DateTime.Parse(ds.Tables[0].Rows[0][(int)hyouji.EXEC_DATE].ToString());
-            lblMentor.Text = ds.Tables[0].Rows[0][(int)hyouji.MENTOR_NM].ToString();
-            lblMentee.Text = ds.Tables[0].Rows[0][(int)hyouji.MENTEE_NM].ToString();
+            //メンター・メンティ―を表示
+            lblMentor.Text = dr["MENTOR_NM"].ToString();
+            lblMentee.Text = dr["MENTEE_NM"].ToString();
+
+            //実施日を表示
+            DateTime execDate = DateTime.Parse(dr["EXEC_DATE"].ToString());
             lblExecDate.Text = execDate.ToShortDateString();
 
-            string startTime = ds.Tables[0].Rows[0][(int)hyouji.START_TIME].ToString();
-            string endTime = ds.Tables[0].Rows[0][(int)hyouji.END_TIME].ToString();
             //実施時刻セット
-            setTimeLbl(startTime, endTime, lblExecTime);
-            lblPlace.Text = ds.Tables[0].Rows[0][(int)hyouji.PLACE].ToString();
-            lblPrice.Text = String.Format("{0:#,0}", ds.Tables[0].Rows[0][(int)hyouji.PRICE]) + "円";
-            //予定日セット
-            string strDatePlan = ds.Tables[0].Rows[0][(int)hyouji.DATE_PLAN].ToString();
-            if (strDatePlan.Equals(""))
-            {
-                lblDatePlan.Text = "";
-            }
-            else
-            {
-                DateTime datePlan = DateTime.Parse(strDatePlan);
-                lblDatePlan.Text = datePlan.ToShortDateString();
-            }
-            string startPlanTime = ds.Tables[0].Rows[0][(int)hyouji.START_PLAN_TIME].ToString();
-            string endPlanTime = ds.Tables[0].Rows[0][(int)hyouji.END_PLAN_TIME].ToString();
-            //予定時刻セット
-            setTimeLbl(startPlanTime, endPlanTime, lblPlanTime);
+            string startTime = dr["START_TIME"].ToString();
+            string endTime = dr["END_TIME"].ToString();
+            SetTimeLbl(startTime, endTime, lblExecTime);
 
-            lblPlanPlace.Text = ds.Tables[0].Rows[0][(int)hyouji.PLAN_PLACE].ToString();
+            //実施場所・経費を表示
+            lblPlace.Text = dr["PLACE"].ToString();
+            lblPrice.Text = ToManey(dr["PRICE"]) + "円";
 
-            txtReport.Text = ds.Tables[0].Rows[0][(int)hyouji.OTHER].ToString();
+            //予定実施日を表示
+            string strDatePlan = dr["DATE_PLAN"].ToString();
+            //予定実施日が選択されている場合
+            lblDatePlan.Text = !string.IsNullOrEmpty(strDatePlan) ?
+                DateTime.Parse(strDatePlan).ToShortDateString() : "";
 
+            //予定時間を表示
+            string startPlanTime = dr["START_PLAN_TIME"].ToString();
+            string endPlanTime = dr["END_PLAN_TIME"].ToString();
+            SetTimeLbl(startPlanTime, endPlanTime, lblPlanTime);
+
+            //実施予定場所を表示
+            lblPlanPlace.Text = dr["PLAN_PLACE"].ToString();
+
+            //報告内容を表示
+            txtReport.Text = dr["OTHER"].ToString();
+
+            //報告内容を編集できないように設定
             txtReport.ReadOnly = true;
             txtReport.BackColor = SystemColors.ButtonFace;
-            btnDelete.Visible = false;
+            //削除・一時保存ボタンを非表示
+            btnDelete.Visible = true;
             btnSave.Visible = false;
             pnlPromote.Visible = true;
         }
+
         /// <summary>
         /// 取得した時刻をコンボボックスへセット
         /// </summary>
-        private void setTimeCbo(string startTime, string endTime, ComboBox comboStartH, ComboBox comboStartM, ComboBox comboEndH, ComboBox comboEndM)
+        private void SetTimeCbo(string startTime, string endTime, ComboBox comboStartH, ComboBox comboStartM, ComboBox comboEndH, ComboBox comboEndM)
         {
-            if (!startTime.Equals(""))
+            //開始時刻が入力されている場合
+            if (!string.IsNullOrEmpty(startTime))
             {
-
                 string startTimeH = startTime.Substring(0, 2);
-                if (startTime.Substring(0, 1) == "0")
-                {
-                    startTimeH = startTime.Substring(1, 1);
-                }
+                //開始時間の先頭文字が0の場合、2文字目を取得
+                startTimeH = startTimeH.Substring(0, 1).Equals("0") ?
+                    startTimeH.Substring(1, 1) : startTimeH;
                 string startTimeM = startTime.Substring(2, 2);
-
+                //コンボボックスに開始時分を表示
                 comboStartH.Text = startTimeH;
                 comboStartM.Text = startTimeM;
             }
+            //開始時間が入力されていない場合
             else
             {
-                comboStartH.SelectedIndex = -1;
-                comboStartM.SelectedIndex = -1;
+                //コンボボックスに空白を表示
+                comboStartH.SelectedIndex = 0;
+                comboStartM.SelectedIndex = 0;
             }
-            if (!endTime.Equals(""))
+            //終了時刻が入力されている場合
+            if (!string.IsNullOrEmpty(endTime))
             {
                 string endTimeH = endTime.Substring(0, 2);
-                if (endTime.Substring(0, 1) == "0")
-                {
-                    endTimeH = endTime.Substring(1, 1);
-                }
+                //終了時間の先頭文字が0の場合、2文字目を取得
+                endTimeH = endTimeH.Substring(0, 1).Equals("0") ?
+                    endTimeH.Substring(1, 1) : endTimeH;
                 string endTimeM = endTime.Substring(2, 2);
+                //コンボボックスに終了時分を表示
                 comboEndH.Text = endTimeH;
                 comboEndM.Text = endTimeM;
             }
+            //終了時刻が入力されていない場合
             else
             {
-                comboEndH.SelectedIndex = -1;
-                comboEndM.SelectedIndex = -1;
+                //コンボボックスに空白を表示
+                comboEndH.SelectedIndex = 0;
+                comboEndM.SelectedIndex = 0;
             }
         }
+
         /// <summary>
-        /// 更新:未報告・差戻
+        /// 未報告・差戻データ表示
         /// </summary>
-        private void dispNotReported(DataSet ds)
+        private void DispNotReported(DataRow dr)
         {
+            //実施日の最大日時を設定
+            dtpExecDate.MaxDate = DateTime.Now;
 
-            if (Convert.ToDateTime(ds.Tables[0].Rows[0][(int)hyouji.EXEC_DATE]) < DateTime.Now)
-            {
-                dtpExecDate.MaxDate = DateTime.Now;
-            }
-            dtpExecDate.Value = Convert.ToDateTime(ds.Tables[0].Rows[0][(int)hyouji.EXEC_DATE].ToString());
+            //実施日を表示
+            dtpExecDate.Value = Convert.ToDateTime(dr["EXEC_DATE"].ToString());
+
             //コンボボックス設定
-            setCbo();
-            cboMentee.SelectedValue = ds.Tables[0].Rows[0][(int)hyouji.MENTEE_ID].ToString();
-            string startTime = ds.Tables[0].Rows[0][(int)hyouji.START_TIME].ToString();
-            string endTime = ds.Tables[0].Rows[0][(int)hyouji.END_TIME].ToString();
-            //実施時刻をコンボへセット
-            setTimeCbo(startTime, endTime, cboStartH, cboStartM, cboEndH, cboEndM);
+            SetCbo();
 
+            //メンティ―を表示
+            cboMentee.SelectedValue = dr["MENTEE_ID"].ToString();
 
-            txtPlace.Text = ds.Tables[0].Rows[0][(int)hyouji.PLACE].ToString();
-            txtPrice.Text = String.Format("{0:#,0}", ds.Tables[0].Rows[0][(int)hyouji.PRICE]);
+            string startTime = dr["START_TIME"].ToString();
+            string endTime = dr["END_TIME"].ToString();
+            //実施時間をコンボへセット
+            SetTimeCbo(startTime, endTime, cboStartH, cboStartM, cboEndH, cboEndM);
 
-            string strDatePlan = ds.Tables[0].Rows[0][(int)hyouji.DATE_PLAN].ToString();
-            if (!strDatePlan.Equals(""))
-            {
-                dtpDatePlan.Text = ds.Tables[0].Rows[0][(int)hyouji.DATE_PLAN].ToString();
-            }
+            //実施場所・費用を表示
+            txtPlace.Text = dr["PLACE"].ToString();
+            txtPrice.Text = ToManey(dr["PRICE"]);
 
-            string startPlanTime = ds.Tables[0].Rows[0][(int)hyouji.START_PLAN_TIME].ToString();
-            string endPlanTime = ds.Tables[0].Rows[0][(int)hyouji.END_PLAN_TIME].ToString();
+            //実施予定日を表示
+            dtpDatePlan.Text = dr["DATE_PLAN"].ToString();
+
+            string startPlanTime = dr["START_PLAN_TIME"].ToString();
+            string endPlanTime = dr["END_PLAN_TIME"].ToString();
             //予定時刻をコンボへセット
-            setTimeCbo(startPlanTime, endPlanTime, cboPlanStartH, cboPlanStartM, cboPlanEndH, cboPlanEndM);
+            SetTimeCbo(startPlanTime, endPlanTime, cboPlanStartH, cboPlanStartM, cboPlanEndH, cboPlanEndM);
 
+            //実施予定場所を表示
+            txtPlanPlace.Text = dr["PLAN_PLACE"].ToString();
 
-            txtPlanPlace.Text = ds.Tables[0].Rows[0][(int)hyouji.PLAN_PLACE].ToString();
-            txtReport.Text = ds.Tables[0].Rows[0][(int)hyouji.OTHER].ToString();
+            //報告内容を表示
+            txtReport.Text = dr["OTHER"].ToString();
+
+            //登録ボタンを非表示
             btnToroku.Visible = false;
         }
 
         /// <summary>
-        /// メンター実績ID取得
+        /// メンター実績取得
         /// </summary>
         public void GetResult(ref DataSet ds)
         {
-
             StringBuilder sql = new StringBuilder();
             sql.Append(" SELECT ");
             sql.Append("      MENTOR_ID");
-            sql.Append("     ,MENTOR.MST_SHAIN_NAME ");
+            sql.Append("     ,MENTOR.MST_SHAIN_NAME AS MENTOR_NM ");
             sql.Append("     ,MENTEE_ID");
-            sql.Append("     ,MENTEE.MST_SHAIN_NAME");
+            sql.Append("     ,MENTEE.MST_SHAIN_NAME AS MENTEE_NM ");
             sql.Append("     ,EXEC_DATE");
             sql.Append("     ,STATUS");
             sql.Append("     ,START_TIME");
@@ -419,30 +654,13 @@ namespace Menter
             sql.Append("     ON MENTEE_ID = MENTEE.MST_SHAIN_CODE ");
             sql.Append($" WHERE MENTOR_RESULT_ID = {_mentorResultId}");
 
-            try
+            //SQL処理
+            ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_005);
+            //実行エラー時
+            if (ds == null)
             {
-                //DB接続
-                dBManager = new DBManager();
+                return;
             }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("DB接続に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            try
-            {
-                dBManager.ExecuteQuery(sql.ToString(), ds);
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("メンター実績の取得に失敗しました", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
-
-
         }
 
         /// <summary>
@@ -450,118 +668,78 @@ namespace Menter
         /// </summary>
         public bool GetComent()
         {
-
             StringBuilder sql = new StringBuilder();
             sql.Append(" SELECT ");
             sql.Append("      COMMENT_ID");
             sql.Append("     ,CORRECT_FLG");
-            sql.Append("     ,CORRECT_FLG");
+            sql.Append("     ,CORRECT_FLG AS CORRECT_FLG_OLD");
             sql.Append("     ,EMPLOYEE_ID ");
-            sql.Append("     ,MST_SHAIN_NAME");
+            sql.Append("     ,MST_SHAIN_NAME AS EMPLOYEE_NM");
             sql.Append("     ,COMMENT");
-            sql.Append("     ,COMMENT");
-            sql.Append("     ,INSERT_DATE");
+            sql.Append("     ,COMMENT AS COMMENT_OLD");
+            sql.Append("     ,INSERT_DATE AS WRITER_DATE");
             sql.Append("   FROM TRN_MENTOR_RESULT_PROMOTE ");
             sql.Append("   LEFT JOIN MST_SHAIN ");
             sql.Append("     ON EMPLOYEE_ID = MST_SHAIN_CODE ");
             sql.Append($" WHERE MENTOR_RESULT_ID = {_mentorResultId}");
 
-            DataSet ds = new DataSet();
-            try
-            {
-                //DB接続
-                dBManager = new DBManager();
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("DB接続に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            try
-            {
-                dBManager.ExecuteQuery(sql.ToString(), ds);
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("推進チームコメントの取得に失敗しました", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
+            //SQL処理
+            dsComent = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_006);
+            //SQL実行エラーの場合
+            returnFlg = dsComent != null ? true : false;
+
             //STATUS列追加
-            ds.Tables[0].Columns.Add();
-            dgvIchiran.DataSource = ds.Tables[0];
+            dsComent.Tables[0].Columns.Add();
 
+            dgvIchiran.Rows.Clear();
+            Enumerable.Range(0, dsComent.Tables[0].Rows.Count).Select(idx => dsComent.Tables[0].Rows[idx] as DataRow).ToList()
+                .ForEach(dr => {
+                    dgvIchiran.Rows.Add();
+                    int idx = dgvIchiran.Rows.Count - 1;
+                    dgvIchiran.Rows[idx].Cells["COMMENT_ID"].Value = dr["COMMENT_ID"].ToString();
+                    dgvIchiran.Rows[idx].Cells["CORRECT_FLG"].Value = dr["CORRECT_FLG"].ToString();
+                    dgvIchiran.Rows[idx].Cells["CORRECT_FLG_OLD"].Value = dr["CORRECT_FLG_OLD"].ToString();
+                    dgvIchiran.Rows[idx].Cells["EMPLOYEE_ID"].Value = dr["EMPLOYEE_ID"].ToString();
+                    dgvIchiran.Rows[idx].Cells["EMPLOYEE_NM"].Value = dr["EMPLOYEE_NM"].ToString();
+                    dgvIchiran.Rows[idx].Cells["CONTENT"].Value = dr["COMMENT"].ToString();
+                    dgvIchiran.Rows[idx].Cells["CONTENT_OLD"].Value = dr["COMMENT_OLD"].ToString();
+                    dgvIchiran.Rows[idx].Cells["WRITER_DATE"].Value = dr["WRITER_DATE"].ToString();
+                    dgvIchiran.Rows[idx].Cells["STETUS"].Value = dr["Column1"].ToString();
+                });
 
-            dgvIchiran.Columns[(int)column.EMPLOYEE_NM].HeaderText = "記入者";
-            dgvIchiran.Columns[(int)column.WRITER_DATE].HeaderText = "記入日時";
-            dgvIchiran.Columns[(int)column.CONTENT].HeaderText = "内容";
-            dgvIchiran.Columns[(int)column.CORRECT_FLG].HeaderText = "";
-
-            dgvIchiran.Columns[(int)column.EMPLOYEE_NM].ReadOnly = true;
-            dgvIchiran.Columns[(int)column.WRITER_DATE].ReadOnly = true;
-
-            if (_mode == (int)mode.SUISHINBU)
+            //推進部の場合
+            if (Mode.Id == CommonConstants.ModeKbn.SUISINBU_ID)
             {
-                dgvIchiran.Columns[(int)column.CORRECT_FLG].ReadOnly = true;
+                dgvIchiran.Columns["CORRECT_FLG"].ReadOnly = true;
             }
+            //メンターの場合
             else
             {
-                dgvIchiran.Columns[(int)column.CONTENT].ReadOnly = true;
+                dgvIchiran.Columns["CONTENT"].ReadOnly = true;
             }
 
-            dgvIchiran.Columns[(int)column.COMMENT_ID].Visible = false;
-            dgvIchiran.Columns[(int)column.CORRECT_FLG_OLD].Visible = false;
-            dgvIchiran.Columns[(int)column.EMPLOYEE_ID].Visible = false;
-            dgvIchiran.Columns[(int)column.CONTENT_OLD].Visible = false;
-            dgvIchiran.Columns[(int)column.STETUS].Visible = false;
+            //コメント入力文字数制限
+            ((DataGridViewTextBoxColumn)dgvIchiran.Columns["CONTENT"]).MaxInputLength = 512;
 
-            dgvIchiran.Columns[(int)column.EMPLOYEE_NM].Width = 110;
-            dgvIchiran.Columns[(int)column.WRITER_DATE].Width = 180;
-            dgvIchiran.Columns[(int)column.CONTENT].Width = 280;
-            dgvIchiran.Columns[(int)column.CORRECT_FLG].Width = 30;
-
-            ((DataGridViewTextBoxColumn)dgvIchiran.Columns[(int)column.CONTENT]).MaxInputLength = 512;
-
-
-            for (int i = 0; i < dgvIchiran.RowCount; i++)
-            {
-
-                DataGridViewCheckBoxCell cell = new DataGridViewCheckBoxCell();
-                dgvIchiran[(int)column.CORRECT_FLG, i] = cell;
-                if ((string)dgvIchiran[(int)column.CORRECT_FLG, i].Value == "0")
+            Enumerable.Range(0, dgvIchiran.Rows.Count).Select(idx => dgvIchiran.Rows[idx]).ToList()
+                .ForEach(dr =>
                 {
-                    dgvIchiran[(int)column.CORRECT_FLG, i].Value = false;
-                    dgvIchiran[(int)column.CORRECT_FLG_OLD, i].Value = false;
-                }
-                else
-                {
-
-                    dgvIchiran[(int)column.CORRECT_FLG, i].Value = true;
-                    dgvIchiran[(int)column.CORRECT_FLG_OLD, i].Value = true;
-                }
-                //他者のコメントは編集不可
-                if (_mode == (int)mode.SUISHINBU)
-                {
-                    if (!dgvIchiran[(int)column.EMPLOYEE_ID, i].Value.ToString().Equals(user.Id))
+                    int idx = dgvIchiran.Rows.Count - 1;
+                    //他者のコメントは編集不可
+                    if (Mode.Id == CommonConstants.ModeKbn.SUISINBU_ID 
+                    && !dr.Cells["EMPLOYEE_ID"].Value.ToString().Equals(User.Id))
                     {
-                        dgvIchiran[(int)column.CONTENT, i].ReadOnly = true;
+                        //ログインユーザーのIDとコメント記入者のIDが一致しない場合、コメント編集不可
+                        dgvIchiran.Rows[idx].Cells["CONTENT"].ReadOnly = true;
                     }
-                }
-                dgvIchiran[(int)column.STETUS, i].Value = "";
-            }
-            foreach (DataGridViewColumn column in this.dgvIchiran.Columns)
-            {
-                column.SortMode = DataGridViewColumnSortMode.NotSortable;
-            }
+                });
 
+            //セルを選択不可
             dgvIchiran.CurrentCell = null;
+            //複数行選択不可
             dgvIchiran.MultiSelect = false;
 
-            return true;
+            return returnFlg;
         }
 
         /// <summary>
@@ -569,21 +747,18 @@ namespace Menter
         /// </summary>
         private void TorokuHaita()
         {
-            if (!comU.InsertHaitaTrn(_mentorResultId, user.Id, programId))
+            if (!comU.InsertHaitaTrn(_mentorResultId, User.Id, programId))
             {
                 btnDelete.Enabled = false;
                 btnReport.Enabled = false;
                 btnSave.Enabled = false;
                 btnRemand.Enabled = false;
                 btnToroku.Enabled = false;
-
                 btnRowDelete.Enabled = false;
                 btnRowInsert.Enabled = false;
-
                 dgvIchiran.ReadOnly = true;
                 shokaiMode = true;
             }
-
         }
 
         /// <summary>
@@ -592,44 +767,39 @@ namespace Menter
         public void SetMentee()
         {
             DataSet dataSet = new DataSet();
-            if (!mentee(ref dataSet))
+            //メンティ―を取得
+            if (!Mentee(ref dataSet))
             {
-                this.Close();
+                Close();
                 return;
             }
+
+            //メンティ―コンボで選択したメンティ―が検索結果に含まれている場合
+            //検索結果の先頭メンティーを格納
             string initSelected = null;
-            //foreach (DataRow ds in dataSet.Tables[0].Rows)
-            //{
-            //    if ((DateTime)ds["TEKIYO_START_DATE"] <= System.DateTime.Now.Date && (DateTime)ds["TEKIYO_END_DATE"] >= System.DateTime.Now.Date)
-            //    {
-            //        initSelected = ds["MST_SHAIN_CODE"].ToString();
-            //    }
-            //}
-            var ds = dataSet.Tables[0].AsEnumerable().Where(r => r.Field<DateTime>("TEKIYO_START_DATE") <= DateTime.Now.Date && r.Field<DateTime>("TEKIYO_END_DATE") >= DateTime.Now.Date).FirstOrDefault();
-            if(ds != null)
-            {
-                initSelected = ds["MST_SHAIN_CODE"].ToString();
-            }
+            initSelected = dataSet.Tables[0].AsEnumerable()
+                .Where(TEKIYO_DATE => TEKIYO_DATE.Field<DateTime>("TEKIYO_START_DATE") <= DateTime.Now.Date && TEKIYO_DATE.Field<DateTime>("TEKIYO_END_DATE") >= DateTime.Now.Date)
+                .Select(SHAIN_CODE => SHAIN_CODE.Field<string>("MST_SHAIN_CODE")).FirstOrDefault().ToString();
+
             // コンボボックスにデータテーブルをセット
-            this.cboMentee.DataSource = dataSet.Tables[0].DefaultView.ToTable(true, "MST_SHAIN_CODE", "MST_SHAIN_NAME");
+            cboMentee.DataSource = dataSet.Tables[0].DefaultView.ToTable(true, "MST_SHAIN_CODE", "MST_SHAIN_NAME");
             // 表示用の列を設定
-            this.cboMentee.DisplayMember = "MST_SHAIN_NAME";
+            cboMentee.DisplayMember = "MST_SHAIN_NAME";
             //// データ用の列を設定
-            this.cboMentee.ValueMember = "MST_SHAIN_CODE";
+            cboMentee.ValueMember = "MST_SHAIN_CODE";
+            //検索結果でメンティ―を取得した場合
             if (initSelected != null)
             {
                 cboMentee.SelectedValue = initSelected;
             }
         }
 
-
         /// <summary>
         /// メンティ―コンボボックス設定
         /// </summary>
         /// <returns></returns>
-        public bool mentee(ref DataSet ds)
+        public bool Mentee(ref DataSet ds)
         {
-
             StringBuilder sql = new StringBuilder();
             sql.Append(" SELECT ");
             sql.Append("     MST_SHAIN_CODE");
@@ -639,253 +809,249 @@ namespace Menter
             sql.Append(" FROM MST_MENTOR_MENTEE");
             sql.Append(" INNER JOIN mst_shain");
             sql.Append("   ON MENTEE_ID = MST_SHAIN_CODE");
-            sql.Append($"   AND MENTOR_ID = {user.Id}");
-            sql.Append(" ORDER BY TEKIYO_START_DATE DESC ");
+            sql.Append($"   AND MENTOR_ID = {User.Id}");
+            sql.Append(" ORDER BY TEKIYO_START_DATE ASC ");
 
-            try
-            {
-                //DB接続
-                dBManager = new DBManager();
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("DB接続に失敗しました。", "エラー");
-                return false;
-            }
-            try
-            {
-                dBManager.ExecuteQuery(sql.ToString(), ds);
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("メンティーコンボボックスの取得に失敗しました", "エラー");
-                return false;
-            }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
+            //SQL処理
+            ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_004);
+            //SQL実行エラーの場合
+            returnFlg = ds != null ? true : false;
 
-
-            return true;
-
+            return returnFlg;
         }
 
         /// <summary>
         /// 最大実績ID取得
         /// </summary>
         /// <returns></returns>
-        public int mentorResultCount()
+        public int MentorResultCount()
         {
             StringBuilder sql = new StringBuilder();
             sql.Append(" SELECT ");
             sql.Append("     MAX(MENTOR_RESULT_ID)");
             sql.Append(" FROM TRN_MENTOR_RESULT");
 
-            DataSet ds = new DataSet();
+            int count = -1;
 
-            dBManager.ExecuteQuery(sql.ToString(), ds);
-
-            int count = 0;
-            if (ds.Tables["Table1"].Rows[0]["MAX(MENTOR_RESULT_ID)"] != DBNull.Value)
+            //SQL処理
+            DataSet ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
+            //実行エラー時
+            if (ds == null)
             {
-                count = Convert.ToInt32(ds.Tables["Table1"].Rows[0]["MAX(MENTOR_RESULT_ID)"].ToString());
+                return count;
             }
+
+            DataRow dr = ds.Tables[0].AsEnumerable().First();
+
+            //取得したメンターリザルトIDがnull以外の場合、取得したIDを格納
+            count = dr["MAX(MENTOR_RESULT_ID)"] != DBNull.Value
+                ? Convert.ToInt32(dr["MAX(MENTOR_RESULT_ID)"].ToString()) :
+                count;
+
             return count;
         }
-
-
 
         /// <summary>
         /// 行削除チェック
         /// </summary>
         /// <returns></returns>
-        public bool rowDeleteCheck()
+        public bool DeleteCheckRow()
         {
-            DialogResult result = MessageBox.Show("削除を行います。よろしいでしょうか。", "", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
+            DialogResult result = MessageBox.Show(MSG.MSG005_003, MSG.MSG001_001, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
 
             //何が選択されたか調べる
-            if (result == DialogResult.Yes)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            returnFlg = result == DialogResult.Yes ? true : false;
+
+            return returnFlg;
         }
+
         /// <summary>
         /// 時刻チェック
         /// </summary>
         /// <returns></returns>
-        public bool timeCheck()
+        public bool CheckTime()
         {
-            if (!cboStartH.Text.Equals("") & cboStartM.Text.Equals(""))
+            //開始時が選択され、開始分が空欄の場合
+            if (!cboStartH.SelectedValue.Equals("") & cboStartM.SelectedValue.Equals(""))
             {
-                MessageBox.Show("実施開始分を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboStartM;
+                MessageBox.Show(MSG.MSG004_003, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboStartM;
                 return false;
             }
-            if (cboStartH.Text.Equals("") & !cboStartM.Text.Equals(""))
+            //開始時が空欄で、開始分が入力されている場合
+            if (cboStartH.SelectedValue.Equals("") & !cboStartM.SelectedValue.Equals(""))
             {
-                MessageBox.Show("実施開始時を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboStartH;
+                MessageBox.Show(MSG.MSG004_004, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboStartH;
                 return false;
             }
-            if (!cboEndH.Text.Equals("") & cboEndM.Text.Equals(""))
+            //終了時が選択され、終了分が空欄の場合
+            if (!cboEndH.SelectedValue.Equals("") & cboEndM.SelectedValue.Equals(""))
             {
-                MessageBox.Show("実施終了分を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboEndM;
+                MessageBox.Show(MSG.MSG004_005, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboEndM;
                 return false;
             }
-            if (cboEndH.Text.Equals("") & !cboEndM.Text.Equals(""))
+            //終了時が空欄で、終了分が入力されている場合
+            if (cboEndH.SelectedValue.Equals("") & !cboEndM.SelectedValue.Equals(""))
             {
-                MessageBox.Show("実施終了時を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboEndH;
+                MessageBox.Show(MSG.MSG004_006, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboEndH;
                 return false;
-            }
-            if (!cboStartH.Text.Equals("") && !cboStartM.Text.Equals("") && !cboEndH.Text.Equals("") && !cboEndM.Text.Equals(""))
-            {
-                int startH = Convert.ToInt32(cboStartH.Text);
-                int startM = Convert.ToInt32(cboStartM.Text);
-                int endH = Convert.ToInt32(cboEndH.Text);
-                int endM = Convert.ToInt32(cboEndM.Text);
-                if (startH > endH)
-                {
-                    this.ActiveControl = cboStartH;
-                    MessageBox.Show("実施時間が逆転しています", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-                else if (startH == endH)
-                {
-                    if (startM > endM)
-                    {
-                        this.ActiveControl = cboStartH;
-                        MessageBox.Show("実施時間が逆転しています", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
-                    }
-                    else if (startM == endM)
-                    {
-                        this.ActiveControl = cboStartH;
-                        MessageBox.Show("実施開始時間と実施終了時間が同じです", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
-                    }
-                }
-            }
-            if (!cboPlanStartH.Text.Equals("") & cboPlanStartM.Text.Equals(""))
-            {
-                MessageBox.Show("予定開始分を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboPlanStartM;
-                return false;
-            }
-            if (cboPlanStartH.Text.Equals("") & !cboPlanStartM.Text.Equals(""))
-            {
-                MessageBox.Show("予定開始時を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboPlanStartH;
-                return false;
-            }
-            if (!cboPlanEndH.Text.Equals("") & cboPlanEndM.Text.Equals(""))
-            {
-                MessageBox.Show("予定終了分を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboPlanEndM;
-                return false;
-            }
-            if (cboPlanEndH.Text.Equals("") & !cboPlanEndM.Text.Equals(""))
-            {
-                MessageBox.Show("予定終了時を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboPlanEndH;
-                return false;
-            }
-            if (!cboPlanStartH.Text.Equals("") && !cboPlanStartM.Text.Equals("") && !cboPlanEndH.Text.Equals("") && !cboPlanEndM.Text.Equals(""))
-            {
-                int startPlanH = Convert.ToInt32(cboPlanStartH.Text);
-                int startPlanM = Convert.ToInt32(cboPlanStartM.Text);
-                int endPlanH = Convert.ToInt32(cboPlanEndH.Text);
-                int endPlanM = Convert.ToInt32(cboPlanEndM.Text);
-                if (startPlanH > endPlanH)
-                {
-                    this.ActiveControl = cboPlanStartH;
-                    MessageBox.Show("予定時間が逆転しています", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
-                }
-                else if (startPlanH == endPlanH)
-                {
-                    if (startPlanM > endPlanM)
-                    {
-                        this.ActiveControl = cboPlanStartH;
-                        MessageBox.Show("予定時間が逆転しています", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
-                    }
-                    else if (startPlanM == endPlanM)
-                    {
-                        this.ActiveControl = cboPlanStartH;
-                        MessageBox.Show("予定開始時間と予定終了時間が同じです", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
-                    }
-                }
-
             }
 
+            //実施時間のチェック
+            //開始時が選択され、開始分が選択されている場合
+            string startTime = !cboStartH.SelectedValue.Equals("") && !cboStartM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboStartH.Text.PadLeft(2, '0') + cboStartM.Text.PadLeft(2, '0')) 
+                : "Null";
+            //終了時が選択され、終了分が選択されている場合
+            string endTime = !cboEndH.SelectedValue.Equals("") && !cboEndM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboEndH.Text.PadLeft(2, '0') + cboEndM.Text.PadLeft(2, '0'))
+                : "Null";
+
+            //実施開始時間と終了時間が入力されている場合
+            if(!startTime.Equals("Null") && !endTime.Equals("Null"))
+            {
+                //開始時間が終了時間より後の場合
+                if (string.Compare(startTime, endTime) == 1)
+                {
+                    MessageBox.Show(MSG.MSG004_007, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                //開始時間と終了時間が同じ場合
+                else if (string.Compare(startTime, endTime) == 0)
+                {
+                    MessageBox.Show(MSG.MSG004_008, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            //開始予定時が選択され、開始予定分が空欄の場合
+            if (!cboPlanStartH.SelectedValue.Equals("") & cboPlanStartM.SelectedValue.Equals(""))
+            {
+                MessageBox.Show(MSG.MSG004_012, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboPlanStartM;
+                return false;
+            }
+            //開始予定時が空欄で、開始予定分が選択されている場合
+            if (cboPlanStartH.SelectedValue.Equals("") & !cboPlanStartM.SelectedValue.Equals(""))
+            {
+                MessageBox.Show(MSG.MSG004_013, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboPlanStartH;
+                return false;
+            }
+            //終了予定時が選択され、終了予定分が空欄の場合
+            if (!cboPlanEndH.SelectedValue.Equals("") & cboPlanEndM.SelectedValue.Equals(""))
+            {
+                MessageBox.Show(MSG.MSG004_014, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboPlanEndM;
+                return false;
+            }
+            //終了予定時が空欄で、終了予定分が選択されている場合
+            if (cboPlanEndH.SelectedValue.Equals("") & !cboPlanEndM.SelectedValue.Equals(""))
+            {
+                MessageBox.Show(MSG.MSG004_015, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboPlanEndH;
+                return false;
+            }
+
+            //予定実施時間のチェック
+            //開始予定時が選択され、開始予定分が選択されている場合
+            string startPlanTime = !cboPlanStartH.SelectedValue.Equals("") && !cboPlanStartM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboPlanStartH.Text.PadLeft(2, '0') + cboPlanStartM.Text.PadLeft(2, '0'))
+                :"Null";
+            //終了予定時が選択され、終了予定分が選択されている場合
+            string endPlanTime = !cboPlanEndH.SelectedValue.Equals("") && !cboPlanEndM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboPlanEndH.Text.PadLeft(2, '0') + cboPlanEndM.Text.PadLeft(2, '0'))
+                : "Null";
+
+            //開始予定時間と終了予定時間が入力されている場合
+            if (!startPlanTime.Equals("Null") && !endPlanTime.Equals("Null"))
+            {
+                //予定開始時間が予定終了時間より後の場合
+                if (string.Compare(startPlanTime, endPlanTime) == 1)
+                {
+                    MessageBox.Show(MSG.MSG004_016, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                //予定開始時間と予定終了時間が同じ場合
+                else if (string.Compare(startPlanTime, endPlanTime) == 0)
+                {
+                    MessageBox.Show(MSG.MSG004_017, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
 
             return true;
         }
 
-        private bool menteeCheck()
+        /// <summary>
+        /// 適用日の期間内にメンティ―が登録されているかチェック
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckMentee()
         {
-            string exec = getDateTimePick(dtpExecDate.Value);
+            string exec = comU.GetDateTimePick(dtpExecDate.Value);
             StringBuilder sql = new StringBuilder();
             sql.Append(" SELECT ");
             sql.Append("     COUNT(MENTEE_ID)");
             sql.Append(" FROM MST_MENTOR_MENTEE");
-            sql.Append($" WHERE MENTOR_ID = '{user.Id}'");
-            sql.Append($" AND TEKIYO_START_DATE <= '{exec}'");
-            sql.Append($" AND TEKIYO_END_DATE >= '{exec}'");
+            sql.Append($" WHERE MENTOR_ID = '{User.Id}'");
+            sql.Append($" AND TEKIYO_START_DATE <= {exec}");
+            sql.Append($" AND TEKIYO_END_DATE >= {exec}");
             sql.Append($" AND MENTEE_ID = '{cboMentee.SelectedValue}'");
 
-            DataSet ds = new DataSet();
+            //SQL処理
+            DataSet ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
+            //SQL実行エラーの場合
+            returnFlg = ds != null ? true : false;
 
-            dBManager.ExecuteQuery(sql.ToString(), ds);
-
-            if (ds.Tables["Table1"].Rows[0]["COUNT(MENTEE_ID)"] != DBNull.Value)
+            //SQL実行エラーでない場合
+            if(returnFlg)
             {
-                if(Convert.ToInt32(ds.Tables["Table1"].Rows[0]["COUNT(MENTEE_ID)"].ToString()) != 0)
-                {
-                    return true;
-                }
+                //取得結果がnull以外かつ取得結果が0以外の場合
+                DataRow dr = ds.Tables[0].AsEnumerable().First();
+                returnFlg = !string.IsNullOrEmpty(dr["COUNT(MENTEE_ID)"].ToString())
+                    && Convert.ToInt32(dr["COUNT(MENTEE_ID)"].ToString()) != 0
+                    ? true : false;
             }
-            return false;
+
+            return returnFlg;
         }
 
         /// <summary>
         /// 一時保存入力チェック
         /// </summary>
         /// <returns></returns>
-        public bool saveInputCheck()
+        public bool InputCheckSave()
         {
-            if (cboMentee.SelectedIndex == -1)
+            //コンボメンティ―が空欄の場合
+            if (cboMentee.SelectedValue.Equals(""))
             {
-                MessageBox.Show("メンティーを選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboMentee;
+                MessageBox.Show(MSG.MSG004_001, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboMentee;
                 return false;
             }
-            if (!menteeCheck())
+            //メンティ―チェック
+            if (!CheckMentee())
             {
-                MessageBox.Show("選択した実施日はメンティーの適用日の範囲外です", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboMentee;
+                MessageBox.Show(MSG.MSG004_002, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboMentee;
                 return false;
             }
+            //実施日と実施予定日が空欄以外の場合
             if (dtpExecDate.Value != null && dtpDatePlan.Value != null)
             {
+                //実施予定日よりも実施日が後の日付の場合
                 if (dtpExecDate.Value >= dtpDatePlan.Value)
                 {
-                    MessageBox.Show("予定日は実施日より後の日付を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    this.ActiveControl = dtpDatePlan;
+                    MessageBox.Show(MSG.MSG004_011, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ActiveControl = dtpDatePlan;
                     return false;
                 }
             }
-
-            if (!timeCheck())
+            //時刻チェック
+            if (!CheckTime())
             {
                 return false;
             }
@@ -897,49 +1063,32 @@ namespace Menter
         /// 一時保存チェック
         /// </summary>
         /// <returns></returns>
-        public bool saveExecute()
+        public bool ExecuteSave()
         {
+            string procName = "";
+            string targetTable = "メンター実績";
             try
             {
-                //DB接続
-                dBManager = new DBManager();
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("DB接続に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            string dml = "";
-            string table = "メンター実績";
-            try
-            {
-                dBManager.BeginTran();
                 //新規(遷移元から引数としてメンター実績IDを取得していない)の場合
-                if (_mentorResultId.Equals(""))
+                if (string.IsNullOrEmpty(_mentorResultId))
                 {
-                    dml = "登録";
-                    MInsert("0");
+                    procName = "登録";
+                    InsertMentorResult(CommonConstants.Status.MIHOUKOKU);
                 }
                 else
                 {
-                    dml = "更新";
-                    MUpdate("0");
-
+                    procName = "更新";
+                    UpdateMentorResult(CommonConstants.Status.MIHOUKOKU);
                 }
-
-                dBManager.CommitTran();
             }
             catch (MySqlException ex)
             {
-                MessageBox.Show($"{table}テーブルの{dml}処理に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"{targetTable}テーブルの{procName}処理に失敗しました。", MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 dBManager.RollBack();
                 return false;
             }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
+            
             return true;
         }
 
@@ -947,74 +1096,84 @@ namespace Menter
         /// 報告入力チェック
         /// </summary>
         /// <returns></returns>
-        public bool reportInputCheck()
+        public bool InputCheckReport()
         {
-
-            if (cboMentee.SelectedIndex == -1)
+            //メンティ―が空欄の場合
+            if (cboMentee.SelectedValue.Equals(""))
             {
-                MessageBox.Show("メンティーを選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboMentee;
+                MessageBox.Show(MSG.MSG004_001, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboMentee;
                 return false;
             }
-            if (!menteeCheck())
+            //メンティ―チェック
+            if (!CheckMentee())
             {
-                MessageBox.Show("選択した実施日はメンティーの適用日の範囲外です", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboMentee;
+                MessageBox.Show(MSG.MSG004_002, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboMentee;
                 return false;
             }
-            if (cboStartH.Text.Equals(""))
+            //開始時が空欄の場合
+            if (cboStartH.SelectedValue.Equals(""))
             {
-                MessageBox.Show("実施開始時を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboStartH;
+                MessageBox.Show(MSG.MSG004_004, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboStartH;
                 return false;
             }
-            if (cboStartM.Text.Equals(""))
+            //開始分が空欄の場合
+            if (cboStartM.SelectedValue.Equals(""))
             {
-                MessageBox.Show("実施開始分を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboStartM;
+                MessageBox.Show(MSG.MSG004_003, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboStartM;
                 return false;
             }
-            if (cboEndH.Text.Equals(""))
+            //終了時が空欄の場合
+            if (cboEndH.SelectedValue.Equals(""))
             {
-                MessageBox.Show("実施終了時を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboEndH;
+                MessageBox.Show(MSG.MSG004_006, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboEndH;
                 return false;
             }
-            if (cboEndM.Text.Equals(""))
+            //終了分が空欄の場合
+            if (cboEndM.SelectedValue.Equals(""))
             {
-                MessageBox.Show("実施終了分を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = cboEndM;
+                MessageBox.Show(MSG.MSG004_005, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = cboEndM;
                 return false;
             }
-            if (txtPlace.Text.Equals(""))
+            //実施場所が空欄の場合
+            if (string.IsNullOrEmpty(txtPlace.Text))
             {
-                MessageBox.Show("実施場所を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = txtPlace;
+                MessageBox.Show(MSG.MSG004_009, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = txtPlace;
                 return false;
             }
-            if (txtPrice.Text.Equals(""))
+            //費用が空欄の場合
+            if (string.IsNullOrEmpty(txtPrice.Text))
             {
-                MessageBox.Show("経費を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = txtPrice;
+                MessageBox.Show(MSG.MSG004_010, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = txtPrice;
                 return false;
             }
-            if (txtReport.Text.Equals(""))
+            //報告が空欄の場合
+            if (string.IsNullOrEmpty(txtReport.Text))
             {
-                MessageBox.Show("報告事項を入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.ActiveControl = txtReport;
+                MessageBox.Show(MSG.MSG004_018, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ActiveControl = txtReport;
                 return false;
             }
+            //実施日と実施予定日が空欄以外の場合
             if (dtpExecDate.Value != null && dtpDatePlan.Value != null)
             {
+                //実施予定日が実施日より後の日付の場合
                 if (dtpExecDate.Value > dtpDatePlan.Value)
                 {
-                    MessageBox.Show("予定日は実施日より後の日付を選択してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    this.ActiveControl = dtpDatePlan;
+                    MessageBox.Show(MSG.MSG004_011, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ActiveControl = dtpDatePlan;
                     return false;
                 }
             }
-
-            if (!timeCheck())
+            //時刻チェック
+            if (!CheckTime())
             {
                 return false;
             }
@@ -1026,63 +1185,40 @@ namespace Menter
         /// 報告実行
         /// </summary>
         /// <returns></returns>
-        public bool reportExcute()
+        public bool ExcuteReport()
         {
-
+            string procName = "";
+            string targetTable = "";
             try
             {
-                //DB接続
-                dBManager = new DBManager();
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("DB接続に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            string dml = "";
-            string table = "";
-            try
-            {
-                dBManager.BeginTran();
                 //新規(遷移元から引数としてメンター実績IDを取得していない)の場合
-                if (_mentorResultId.Equals(""))
+                if (string.IsNullOrEmpty(_mentorResultId))
                 {
-                    table = "メンター実績";
-                    dml = "登録";
-                    MInsert("1");
+                    targetTable = "メンター実績";
+                    procName = "登録";
+                    InsertMentorResult(CommonConstants.Status.HOUKOKUZUMI);
                 }
                 else
                 {
-                    table = "メンター実績";
-                    dml = "更新";
-                    MUpdate("1");
-                    table = "推進チームコメント";
+                    targetTable = "メンター実績";
+                    procName = "更新";
+                    UpdateMentorResult(CommonConstants.Status.HOUKOKUZUMI);
+                    targetTable = "推進チームコメント";
+
                     //値の変更を行った明細の数だけ繰り返し処理を行う
-                    for (int i = 0; i < dgvIchiran.Rows.Count; i++)
-                    {
-
-                        if (dgvIchiran[(int)column.STETUS, i].Value.ToString() == "1")
-                        {
-                            CUpdate(i);
-                        }
-
-                    }
-
+                    dgvIchiran.Rows.Cast<DataGridViewRow>()
+                        .Where(row => row.Cells["STETUS"].Value.ToString() == CommonConstants.Status.HOUKOKUZUMI).ToList()
+                        .ForEach(row => UpdateComment(row));
                 }
-
-                dBManager.CommitTran();
             }
             catch (MySqlException ex)
             {
-                MessageBox.Show($"{table}テーブルの{dml}処理に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"{targetTable}テーブルの{procName}処理に失敗しました。", MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 dBManager.RollBack();
                 return false;
             }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
+            
             return true;
         }
 
@@ -1090,77 +1226,55 @@ namespace Menter
         /// 登録実行
         /// </summary>
         /// <returns></returns>
-        public bool insertExcute()
+        public bool ExcuteInsert()
         {
+            string procName = "";
             try
             {
-                //DB接続
-                dBManager = new DBManager();
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("DB接続に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            string dml = "";
-            try
-            {
-                dBManager.BeginTran();
                 //メンター用
-                if (_mode == (int)mode.MENTA)
+                if (Mode.Id == CommonConstants.ModeKbn.MENTOR_ID)
                 {
-                    dml = "更新";
+                    procName = "更新";
+
                     //値の変更を行った明細の数だけ繰り返し処理を行う
-                    for (int i = 0; i < dgvIchiran.Rows.Count; i++)
-                    {
-
-                        string id = dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString();
-                        string correct = dgvIchiran[(int)column.CORRECT_FLG, i].Value.ToString();
-                        if (dgvIchiran[(int)column.STETUS, i].Value.ToString() == "1")
-                        {
-                            CUpdate(i);
-                        }
-
-                    }
+                    dgvIchiran.Rows.Cast<DataGridViewRow>()
+                        .Where(row => row.Cells["STETUS"].Value.ToString() == CommonConstants.Status.HOUKOKUZUMI).ToList()
+                        .ForEach(row => UpdateComment(row));
                 }
                 //推進チーム用
                 else
                 {
+                    procName = "削除";
+                    DeleteComment();
 
-                    dml = "削除";
-                    SDelete();
                     //値の変更を行った明細の数だけ繰り返し処理を行う
-                    for (int i = 0; i < dgvIchiran.Rows.Count; i++)
+                    dgvIchiran.Rows.Cast<DataGridViewRow>().ToList()
+                    .ForEach(row =>
                     {
-
-                        if (dgvIchiran[(int)column.STETUS, i].Value.ToString() == "0")
+                        //新しいコメントを登録する場合
+                        if (row.Cells["STETUS"].Value.ToString() == CommonConstants.Status.MIHOUKOKU)
                         {
-                            dml = "登録";
-                            SInsert(i);
+                            procName = "登録";
+                            InsertComment(row);
                         }
-                        else if (dgvIchiran[(int)column.STETUS, i].Value.ToString() == "1")
+                        //コメントを更新する場合
+                        else if (row.Cells["STETUS"].Value.ToString() == CommonConstants.Status.HOUKOKUZUMI)
                         {
-                            dml = "更新";
-                            SUpdate(i);
+                            procName = "更新";
+                            row.Cells["WRITER_DATE"].Value = DateTime.Now;
+                            UpdateCommentPromoto(row);
                         }
-
-
-                    }
+                    });
                 }
-
-                dBManager.CommitTran();
             }
             catch (MySqlException ex)
             {
-                MessageBox.Show($"推進チームコメントテーブルの{dml}処理に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"推進チームコメントテーブルの{procName}処理に失敗しました。", MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 dBManager.RollBack();
                 return false;
             }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
+
             return true;
         }
 
@@ -1168,117 +1282,68 @@ namespace Menter
         /// 登録入力チェック(明細変更)
         /// </summary>
         /// <returns></returns>
-        public bool insertInputCheckM()
+        public bool InputCheckMInsert()
         {
-            for (int i = 0; i < dgvIchiran.Rows.Count; i++)
+            returnFlg = true;
+            //明細が変更されていない場合エラー
+            if (dgvIchiran.Rows.Count == 0)
             {
-                if (!string.IsNullOrEmpty(dgvIchiran[(int)column.STETUS, i].Value.ToString()))
-                {
-                    break;
-                }
-                if (i == dgvIchiran.Rows.Count - 1 && delList.Count == 0)
-                {
-                    MessageBox.Show("明細が変更されていません", "エラー");
-                    return false;
-                }
+                MessageBox.Show(MSG.MSG006_001, MSG.MSG001_002);
+                returnFlg = false;
             }
+            //削除行がない場合エラー
+            //Enumerable.Range(0, dgvIchiran.Rows.Count).ToList()
+            //    .Where(dr => delList.Count == 0).ToList()
+            //    .ForEach(dr =>
+            //    {
+            //        MessageBox.Show(MSG.MSG006_001, MSG.MSG001_002);
+            //        returnFlg = false;
+            //    });
 
-            return true;
+            return returnFlg;
         }
 
         /// <summary>
         /// 登録入力チェック(コメント)
         /// </summary>
         /// <returns></returns>
-        public bool insertInputCheckComment()
+        public bool InputCheckCommentInsert()
         {
+            returnFlg = true;
+            //コメントが空白の場合エラー
+            Enumerable.Range(0, dgvIchiran.Rows.Count).Select(idx => dgvIchiran.Rows[idx])
+                .Where(dr => dr.Cells["CONTENT"].Value.ToString() == "").ToList()
+                .ForEach(row => {
+                    MessageBox.Show(MSG.MSG006_002, MSG.MSG001_002);
+                    returnFlg = false;
+                });
 
-            for (int i = 0; i < dgvIchiran.Rows.Count; i++)
-            {
-                if (string.IsNullOrEmpty(dgvIchiran[(int)column.CONTENT, i].Value.ToString()))
-                {
-                    MessageBox.Show("コメントを入力してください", "エラー");
-                    return false;
-                }
-            }
-
-            return true;
+            return returnFlg;
         }
-
 
         /// <summary>
         /// 削除実行
         /// </summary>
         /// <returns></returns>
-        private bool deleteExcute()
+        private bool ExcuteDelete()
         {
+            string procName = "";
+            string targetTable = "";
             try
             {
-                //DB接続
-                dBManager = new DBManager();
+                targetTable = "メンター実績";
+                procName = "削除";
+                //メンター実施テーブルデータ削除処理
+                DeleteMentorResult();
+                targetTable = "推進チームコメント";
+                AllDeleteComment();
             }
             catch (MySqlException ex)
             {
-                MessageBox.Show("DB接続に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            string dml = "";
-            string table = "";
-            try
-            {
-                dBManager.BeginTran();
-                table = "メンター実績";
-                dml = "削除";
-                MDelete();
-                table = "推進チームコメント";
-                MPDelete();
-
-                dBManager.CommitTran();
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show($"{table}テーブルの{dml}処理に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"{targetTable}テーブルの{procName}処理に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 dBManager.RollBack();
                 return false;
-            }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// 差し戻し入力チェック
-        /// </summary>
-        /// <returns></returns>
-        public bool remandInputCheck()
-        {
-            if (dgvIchiran.Rows.Count == 0)
-            {
-                MessageBox.Show("コメントを入力してください", "エラー");
-                return false;
-            }
-            for (int i = 0; i < dgvIchiran.Rows.Count; i++)
-            {
-                if (dgvIchiran[(int)column.STETUS, i].Value.ToString() == "0")
-                {
-                    if (string.IsNullOrEmpty(dgvIchiran[(int)column.CONTENT, i].Value.ToString()))
-                    {
-                        MessageBox.Show("コメントを入力してください", "エラー");
-                        return false;
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                }
-                if (i == dgvIchiran.Rows.Count - 1)
-                {
-                    MessageBox.Show("差戻理由を追加してください", "エラー");
-                    return false;
-                }
             }
 
             return true;
@@ -1288,136 +1353,110 @@ namespace Menter
         /// ダイアログチェック
         /// </summary>
         /// <returns></returns>
-        public bool diarogCheck(string processing)
+        public bool CheckDiarog(string processing)
         {
             DialogResult result = MessageBox.Show($"{processing}を行います。よろしいでしょうか。", "", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
 
             //何が選択されたか調べる
-            if (result == DialogResult.Yes)
-            {
-                return true;
+            returnFlg = result == DialogResult.Yes ? true : false;
 
-            }
-            else
-            {
-                return false;
-            }
+            return returnFlg;
         }
 
         /// <summary>
         /// 差し戻し実行
         /// </summary>
         /// <returns></returns>
-        private bool remandExcute()
+        private bool ExcuteRemand()
         {
+            string procName = "";
+            string targetTable = "";
             try
             {
-                //DB接続
-                dBManager = new DBManager();
-            }
-            catch (MySqlException ex)
-            {
-                MessageBox.Show("DB接続に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            string dml = "";
-            string table = "";
-            try
-            {
-                dBManager.BeginTran();
-                table = "推進チームコメント";
-                dml = "削除";
-                SDelete();
+                targetTable = "推進チームコメント";
+                procName = "削除";
+                DeleteComment();
+
                 //値の変更を行った明細の数だけ繰り返し処理を行う
-                for (int i = 0; i < dgvIchiran.Rows.Count; i++)
-                {
-
-                    if (dgvIchiran[(int)column.STETUS, i].Value.ToString() == "0")
+                dgvIchiran.Rows.Cast<DataGridViewRow>().ToList()
+                    .ForEach(row =>
                     {
-                        dml = "登録";
-                        SInsert(i);
-                    }
-                    else if (dgvIchiran[(int)column.STETUS, i].Value.ToString() == "1")
-                    {
-                        dml = "更新";
-                        SUpdate(i);
-                    }
-                }
-                table = "メンター実績";
-                dml = "更新";
+                        //新しいコメントを登録する場合
+                        if (row.Cells["STETUS"].Value.ToString() == CommonConstants.Status.MIHOUKOKU)
+                        {
+                            procName = "登録";
+                            InsertComment(row);
+                        }
+                        //コメントを更新する場合
+                        else if (row.Cells["STETUS"].Value.ToString() == CommonConstants.Status.HOUKOKUZUMI)
+                        {
+                            procName = "更新";
+                            row.Cells["WRITER_DATE"].Value = DateTime.Now;
+                            UpdateCommentPromoto(row);
+                        }
+                    });
+                targetTable = "メンター実績";
+                procName = "更新";
                 //差戻処理
-                remandUpdate();
-
-                dBManager.CommitTran();
+                UpdateRemand();
             }
             catch (MySqlException ex)
             {
-                MessageBox.Show($"{table}テーブルの{dml}処理に失敗しました。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"{targetTable}テーブルの{procName}処理に失敗しました。", MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 dBManager.RollBack();
                 return false;
             }
-            finally
-            {
-                //DBクローズ
-                dBManager.Close();
-            }
+
             return true;
-        }
-
-        /// <summary>
-        /// DateTimePickerの値から日付を取得
-        /// </summary>
-        private string getDateTimePick(DateTime? dateTime)
-        {
-            string result = "null";
-
-            if (!string.IsNullOrEmpty(dateTime.ToString()))
-            {
-                result = ((DateTime)dateTime).Year.ToString() + String.Format("{0:D2}", ((DateTime)dateTime).Month) + String.Format("{0:D2}", ((DateTime)dateTime).Day);
-            }
-
-            return result;
         }
 
         /// <summary>
         /// メンター実績登録処理
         /// </summary>
         /// <returns></returns>
-        private void MInsert(string status)
+        private void InsertMentorResult(string status)
         {
-            string exec = getDateTimePick(dtpExecDate.Value);
-
-            string plan = getDateTimePick(dtpDatePlan.Value);
+            string exec = comU.GetDateTimePick(dtpExecDate.Value);
+            string plan = comU.GetDateTimePick(dtpDatePlan.Value);
 
             string startTime = "Null";
             string endTime = "Null";
-            if (!cboStartH.Text.Equals("") && !cboStartM.Text.Equals(""))
-            {
-                startTime = comU.CAddQuotation(cboStartH.Text.PadLeft(2, '0') + cboStartM.Text.PadLeft(2, '0'));
-            }
-            if (!cboEndH.Text.Equals("") && !cboEndM.Text.Equals(""))
-            {
-                endTime = comU.CAddQuotation(cboEndH.Text.PadLeft(2, '0') + cboEndM.Text.PadLeft(2, '0'));
-            }
+            //開始時が選択され、開始分が選択されている場合
+            startTime = !cboStartH.SelectedValue.Equals("") && !cboStartM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboStartH.Text.PadLeft(2, '0') + cboStartM.Text.PadLeft(2, '0'))
+                : startTime;
+            //終了時が選択され、終了分が選択されている場合
+            endTime = !cboEndH.SelectedValue.Equals("") && !cboEndM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboEndH.Text.PadLeft(2, '0') + cboEndM.Text.PadLeft(2, '0'))
+                : endTime;
 
             string price = "Null";
-            if (!txtPrice.Text.Equals(""))
-            {
-                price = txtPrice.Text.Replace(",", "");
-            }
+            //費用が入力されている場合
+            price = !string.IsNullOrEmpty(txtPrice.Text)
+                ? txtPrice.Text.Replace(",", "")
+                : price;
+
+            //予定日をnull
+            plan = string.IsNullOrEmpty(plan) ? "Null" : plan;
 
             string startPlanTime = "Null";
-            string endPlanTime = "Null";
-            if (!cboPlanStartH.Text.Equals("") && !cboPlanStartM.Text.Equals(""))
-            {
-                startPlanTime = comU.CAddQuotation(cboPlanStartH.Text.PadLeft(2, '0') + cboPlanStartM.Text.PadLeft(2, '0'));
-            }
-            if (!cboPlanEndH.Text.Equals("") && !cboPlanEndM.Text.Equals(""))
-            {
-                endPlanTime = comU.CAddQuotation(cboPlanEndH.Text.PadLeft(2, '0') + cboPlanEndM.Text.PadLeft(2, '0'));
-            }
+            //開始予定時が選択され、開始予定分が選択されている場合
+            startPlanTime = !cboPlanStartH.SelectedValue.Equals("") && !cboPlanStartM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboPlanStartH.Text.PadLeft(2, '0') + cboPlanStartM.Text.PadLeft(2, '0'))
+                : startPlanTime;
 
-            int recordCount = mentorResultCount();
+            string endPlanTime = "Null";
+            //終了予定時が選択され、終了予定分が選択されている場合
+            endPlanTime = !cboPlanEndH.SelectedValue.Equals("") && !cboPlanEndM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboPlanEndH.Text.PadLeft(2, '0') + cboPlanEndM.Text.PadLeft(2, '0'))
+                : endPlanTime;
+
+            int recordCount = MentorResultCount();
+            if(recordCount == -1)
+            {
+                return;
+            }
 
             StringBuilder sql = new StringBuilder();
             sql.Append(" INSERT INTO TRN_MENTOR_RESULT ");
@@ -1443,6 +1482,7 @@ namespace Menter
             sql.Append("    ,UPD_USER ");
             sql.Append("    ,UPD_PGM) ");
             sql.Append(" VALUES (");
+            //最大実績IDが0以外の場合
             if (recordCount != 0)
             {
                 sql.Append($"    '{recordCount + 1}' ");
@@ -1452,10 +1492,11 @@ namespace Menter
                 sql.Append("    1 ");
             }
             sql.Append($"    ,{exec} ");
-            sql.Append($"    ,{comU.CAddQuotation(user.Id)} ");
+            sql.Append($"    ,{comU.CAddQuotation(User.Id)} ");
             sql.Append($"    ,'{cboMentee.SelectedValue}'");
             sql.Append($"    ,{status} ");
-            if (status == "0")
+            //状況が未報告の場合
+            if (status == CommonConstants.Status.MIHOUKOKU)
             {
                 sql.Append("    ,Null ");
             }
@@ -1465,7 +1506,8 @@ namespace Menter
             }
             sql.Append($"    ,{startTime} ");
             sql.Append($"    ,{endTime} ");
-            if (!txtPlace.Text.Equals(""))
+            //実施場所が空欄以外の場合
+            if (!string.IsNullOrEmpty(txtPlace.Text))
             {
                 sql.Append($"    ,{comU.CAddQuotation(txtPlace.Text)} ");
             }
@@ -1473,12 +1515,12 @@ namespace Menter
             {
                 sql.Append("    ,Null ");
             }
-
             sql.Append($"    ,{price} ");
             sql.Append($"    ,{plan} ");
             sql.Append($"    ,{startPlanTime} ");
             sql.Append($"    ,{endPlanTime} ");
-            if (!txtPlanPlace.Text.Equals(""))
+            //実施予定場所が空欄以外の場合
+            if (!string.IsNullOrEmpty(txtPlanPlace.Text))
             {
                 sql.Append($"    ,{comU.CAddQuotation(txtPlanPlace.Text)} ");
             }
@@ -1486,7 +1528,8 @@ namespace Menter
             {
                 sql.Append("    ,Null ");
             }
-            if (!txtReport.Text.Equals(""))
+            //報告が入力されている場合
+            if (!string.IsNullOrEmpty(txtReport.Text))
             {
                 sql.Append($"    ,{comU.CAddQuotation(txtReport.Text)} ");
             }
@@ -1494,14 +1537,12 @@ namespace Menter
             {
                 sql.Append("    ,Null ");
             }
-
             sql.Append("    ,now() ");
-            sql.Append($"    ,{comU.CAddQuotation(user.Id)} ");
+            sql.Append($"    ,{comU.CAddQuotation(User.Id)} ");
             sql.Append($"    ,{comU.CAddQuotation(programId)} ");
             sql.Append("    ,now() ");
-            sql.Append($"    ,{comU.CAddQuotation(user.Id)} ");
+            sql.Append($"    ,{comU.CAddQuotation(User.Id)} ");
             sql.Append($"    ,{comU.CAddQuotation(programId)}) ");
-
 
             dBManager.ExecuteNonQuery(sql.ToString());
         }
@@ -1510,12 +1551,12 @@ namespace Menter
         /// 推進チームコメント登録
         /// </summary>
         /// <returns></returns>
-        private void SInsert(int i)
+        private void InsertComment(DataGridViewRow row)
         {
-            dgvIchiran[(int)column.WRITER_DATE, i].Value = DateTime.Now;
-            string id = dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString();
-            string content = dgvIchiran[(int)column.CONTENT, i].Value.ToString();
-            string writeDate = dgvIchiran[(int)column.WRITER_DATE, i].Value.ToString();
+            row.Cells["WRITER_DATE"].Value = DateTime.Now;
+            string id = row.Cells["COMMENT_ID"].Value.ToString();
+            string content = row.Cells["CONTENT"].Value.ToString();
+            string writeDate = row.Cells["WRITER_DATE"].Value.ToString();
             StringBuilder sql = new StringBuilder();
             sql.Append(" INSERT INTO TRN_MENTOR_RESULT_PROMOTE ");
             sql.Append("    (MENTOR_RESULT_ID ");
@@ -1534,22 +1575,19 @@ namespace Menter
             sql.Append(" VALUES ");
             sql.Append($"    ({_mentorResultId} ");
             sql.Append($"    ,{id} ");
-            sql.Append($"    ,{comU.CAddQuotation(user.Id)}");
+            sql.Append($"    ,{comU.CAddQuotation(User.Id)}");
             sql.Append($"    ,{comU.CAddQuotation(writeDate)} ");
             sql.Append($"    ,{comU.CAddQuotation(content)} ");
             sql.Append("    ,'0' ");
             sql.Append("    ,Null ");
             sql.Append("    ,now() ");
-            sql.Append($"    ,{comU.CAddQuotation(user.Id)} ");
+            sql.Append($"    ,{comU.CAddQuotation(User.Id)} ");
             sql.Append($"    ,{comU.CAddQuotation(programId)} ");
             sql.Append("    ,now() ");
-            sql.Append($"    ,{comU.CAddQuotation(user.Id)} ");
+            sql.Append($"    ,{comU.CAddQuotation(User.Id)} ");
             sql.Append($"    ,{comU.CAddQuotation(programId)}) ");
 
-
             dBManager.ExecuteNonQuery(sql.ToString());
-
-
         }
 
         /// <summary>
@@ -1557,47 +1595,49 @@ namespace Menter
         /// </summary>
         /// <param name="status"></param>
         /// <returns></returns>
-        private void MUpdate(string status)
+        private void UpdateMentorResult(string status)
         {
-            string exec = getDateTimePick(dtpExecDate.Value);
-
-            string plan = getDateTimePick(dtpDatePlan.Value);
+            string exec = comU.GetDateTimePick(dtpExecDate.Value);
+            string plan = comU.GetDateTimePick(dtpDatePlan.Value);
 
             string startTime = "Null";
+            //開始時が選択され、開始分が選択されている場合
+            startTime = !cboStartH.SelectedValue.Equals("") && !cboStartM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboStartH.Text.PadLeft(2, '0') + cboStartM.Text.PadLeft(2, '0'))
+                : startTime;
+
             string endTime = "Null";
-            if (!cboStartH.Text.Equals("") && !cboStartM.Text.Equals(""))
-            {
-                startTime = comU.CAddQuotation(cboStartH.Text.PadLeft(2, '0') + cboStartM.Text.PadLeft(2, '0'));
-            }
-            if (!cboEndH.Text.Equals("") && !cboEndM.Text.Equals(""))
-            {
-                endTime = comU.CAddQuotation(cboEndH.Text.PadLeft(2, '0') + cboEndM.Text.PadLeft(2, '0'));
-            }
+            //終了時が選択され、終了分が選択されている場合
+            endTime = !cboEndH.SelectedValue.Equals("") && !cboEndM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboEndH.Text.PadLeft(2, '0') + cboEndM.Text.PadLeft(2, '0'))
+                : endTime;
+
             string price = "Null";
-            if (!txtPrice.Text.Equals(""))
-            {
-                price = txtPrice.Text.Replace(",", "");
-            }
+            //費用が入力されている場合
+            price = !string.IsNullOrEmpty(txtPrice.Text)
+                ? txtPrice.Text.Replace(",", "")
+                : price;
 
             string startPlanTime = "Null";
+            //開始予定時が選択され、開始予定分が選択されている場合
+            startPlanTime = !cboPlanStartH.SelectedValue.Equals("") && !cboPlanStartM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboPlanStartH.Text.PadLeft(2, '0') + cboPlanStartM.Text.PadLeft(2, '0'))
+                : startPlanTime;
+
             string endPlanTime = "Null";
-            if (!cboPlanStartH.Text.Equals("") && !cboPlanStartM.Text.Equals(""))
-            {
-                startPlanTime = comU.CAddQuotation(cboPlanStartH.Text.PadLeft(2, '0') + cboPlanStartM.Text.PadLeft(2, '0'));
-            }
-            if (!cboPlanEndH.Text.Equals("") && !cboPlanEndM.Text.Equals(""))
-            {
-                endPlanTime = comU.CAddQuotation(cboPlanEndH.Text.PadLeft(2, '0') + cboPlanEndM.Text.PadLeft(2, '0'));
-            }
+            //終了予定時が選択され、終了予定分が選択されている場合
+            endPlanTime = !cboPlanEndH.SelectedValue.Equals("") && !cboPlanEndM.SelectedValue.Equals("")
+                ? comU.CAddQuotation(cboPlanEndH.Text.PadLeft(2, '0') + cboPlanEndM.Text.PadLeft(2, '0'))
+                : endPlanTime;
 
             StringBuilder sql = new StringBuilder();
             sql.Append(" UPDATE TRN_MENTOR_RESULT ");
             sql.Append($"    SET  EXEC_DATE = {exec} ");
-            sql.Append($"     ,    MENTOR_ID = {comU.CAddQuotation(user.Id)} ");
+            sql.Append($"     ,    MENTOR_ID = {comU.CAddQuotation(User.Id)} ");
             sql.Append($"     ,    MENTEE_ID = '{cboMentee.SelectedValue}' ");
-
             sql.Append($"     ,    STATUS = {status} ");
-            if (status == "0")
+            //状況が未報告の場合
+            if (status == CommonConstants.Status.MIHOUKOKU)
             {
                 sql.Append($"     ,    REPORT_DT = Null ");
             }
@@ -1615,36 +1655,30 @@ namespace Menter
             sql.Append($"     ,    PLAN_PLACE = {comU.CAddQuotation(txtPlanPlace.Text)} ");
             sql.Append($"     ,    OTHER = {comU.CAddQuotation(txtReport.Text)} ");
             sql.Append("      ,    UPD_DT = now() ");
-            sql.Append($"     ,    UPD_USER = {comU.CAddQuotation(user.Id)}  ");
+            sql.Append($"     ,    UPD_USER = {comU.CAddQuotation(User.Id)}  ");
             sql.Append($"     ,    UPD_PGM = {comU.CAddQuotation(programId)}  ");
             sql.Append($" WHERE MENTOR_RESULT_ID = '{_mentorResultId}'");
-
 
             dBManager.ExecuteNonQuery(sql.ToString());
         }
 
         /// <summary>
-        /// メンターコメント更新
+        /// コメント更新(メンター用)
         /// </summary>
         /// <returns></returns>
-        private void CUpdate(int i)
+        private void UpdateComment(DataGridViewRow row)
         {
-            string id = dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString();
-            string correctFlg = dgvIchiran[(int)column.CORRECT_FLG, i].Value.ToString();
+            string id = row.Cells["COMMENT_ID"].Value.ToString();
+            string correctFlg = row.Cells["CORRECT_FLG"].Value.ToString();
             string check;
-            if (correctFlg == "True")
-            {
-                check = "1";
-            }
-            else
-            {
-                check = "0";
-            }
+            //チェックボックスにチェックが入っている場合、チェックON
+            check = correctFlg == "True" ? CommonConstants.Flg.ON : CommonConstants.Flg.OFF;
 
             StringBuilder sql = new StringBuilder();
             sql.Append(" UPDATE TRN_MENTOR_RESULT_PROMOTE ");
             sql.Append($"    SET  CORRECT_FLG = {check} ");
-            if (check.Equals("0"))
+            //チェックされていない場合
+            if (check.Equals(CommonConstants.Flg.OFF))
             {
                 sql.Append("     ,    CORRECT_DT = null ");
             }
@@ -1653,7 +1687,7 @@ namespace Menter
                 sql.Append($"     ,    CORRECT_DT = now() ");
             }
             sql.Append("      ,    UPD_DT = now() ");
-            sql.Append($"     ,    UPD_USER = {comU.CAddQuotation(user.Id)}  ");
+            sql.Append($"     ,    UPD_USER = {comU.CAddQuotation(User.Id)}  ");
             sql.Append($"     ,    UPD_PGM = {comU.CAddQuotation(programId)}  ");
             sql.Append($" WHERE MENTOR_RESULT_ID = '{_mentorResultId}'");
             sql.Append($"   AND COMMENT_ID = '{id}'");
@@ -1661,28 +1695,25 @@ namespace Menter
             dBManager.ExecuteNonQuery(sql.ToString());
         }
 
-
         /// <summary>
-        /// 推進チームコメント更新
+        /// コメント更新(推進チーム用)
         /// </summary>
         /// <returns></returns>
-        private void SUpdate(int i)
+        private void UpdateCommentPromoto(DataGridViewRow row)
         {
-            dgvIchiran[(int)column.WRITER_DATE, i].Value = DateTime.Now;
-            string id = dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString();
-            string content = dgvIchiran[(int)column.CONTENT, i].Value.ToString();
-            string writeDate = dgvIchiran[(int)column.WRITER_DATE, i].Value.ToString();
+            string id = row.Cells["COMMENT_ID"].Value.ToString();
+            string content = row.Cells["COMMENT"].Value.ToString();
+            string writeDate = row.Cells["WRITER_DATE"].Value.ToString();
             StringBuilder sql = new StringBuilder();
             sql.Append(" UPDATE TRN_MENTOR_RESULT_PROMOTE ");
             sql.Append($"    SET  COMMENT = {comU.CAddQuotation(content)} ");
             sql.Append($"      ,INSERT_DATE = {comU.CAddQuotation(writeDate)}  ");
             sql.Append("      ,CORRECT_FLG = 0 ");
             sql.Append("      ,    UPD_DT = now() ");
-            sql.Append($"     ,    UPD_USER = {comU.CAddQuotation(user.Id)}  ");
+            sql.Append($"     ,    UPD_USER = {comU.CAddQuotation(User.Id)}  ");
             sql.Append($"     ,    UPD_PGM = {comU.CAddQuotation(programId)}  ");
             sql.Append($" WHERE MENTOR_RESULT_ID = '{_mentorResultId}'");
             sql.Append($"   AND COMMENT_ID = '{id}'");
-
 
             dBManager.ExecuteNonQuery(sql.ToString());
         }
@@ -1690,52 +1721,46 @@ namespace Menter
         /// <summary>
         /// 推進チームコメント削除
         /// </summary>
-        /// <returns></returns>
-        private void SDelete()
+        private void DeleteComment()
         {
-            for (int i = 0; i < delList.Count; i++)
-            {
+            Enumerable.Range(0, delList.Count).ToList()
+                .ForEach(row =>
+                {
+                    StringBuilder sql = new StringBuilder();
+                    sql.Append(" DELETE FROM TRN_MENTOR_RESULT_PROMOTE ");
+                    sql.Append($" WHERE MENTOR_RESULT_ID = '{_mentorResultId}'");
+                    sql.Append($"   AND COMMENT_ID = '{delList[0]}'");
 
-                StringBuilder sql = new StringBuilder();
-                sql.Append(" DELETE FROM TRN_MENTOR_RESULT_PROMOTE ");
-                sql.Append($" WHERE MENTOR_RESULT_ID = '{_mentorResultId}'");
-                sql.Append($"   AND COMMENT_ID = '{delList[i]}'");
-
-
-                dBManager.ExecuteNonQuery(sql.ToString());
-            }
+                    dBManager.ExecuteNonQuery(sql.ToString());
+                });
         }
-
 
         /// <summary>
         /// 差し戻し更新
         /// </summary>
         /// <returns></returns>
-        private void remandUpdate()
+        private void UpdateRemand()
         {
             StringBuilder sql = new StringBuilder();
             sql.Append(" UPDATE TRN_MENTOR_RESULT ");
             sql.Append("    SET  STATUS = '2' ");
             sql.Append("      ,    UPD_DT = now() ");
-            sql.Append($"     ,    UPD_USER = {comU.CAddQuotation(user.Id)}  ");
+            sql.Append($"     ,    UPD_USER = {comU.CAddQuotation(User.Id)}  ");
             sql.Append($"     ,    UPD_PGM = {comU.CAddQuotation(programId)}  ");
             sql.Append($" WHERE MENTOR_RESULT_ID = '{_mentorResultId}'");
 
-
             dBManager.ExecuteNonQuery(sql.ToString());
         }
-
 
         /// <summary>
         /// 削除処理(推進チームコメントテーブル)
         /// </summary>
         /// <returns></returns>
-        private void MPDelete()
+        private void AllDeleteComment()
         {
             StringBuilder sql = new StringBuilder();
             sql.Append(" DELETE FROM TRN_MENTOR_RESULT_PROMOTE ");
             sql.Append($" WHERE MENTOR_RESULT_ID = '{_mentorResultId}'");
-
 
             dBManager.ExecuteNonQuery(sql.ToString());
         }
@@ -1744,17 +1769,60 @@ namespace Menter
         /// 削除処理(メンター実績テーブル)
         /// </summary>
         /// <returns></returns>
-        private void MDelete()
+        private void DeleteMentorResult()
         {
             StringBuilder sql = new StringBuilder();
             sql.Append(" DELETE FROM TRN_MENTOR_RESULT ");
             sql.Append($" WHERE MENTOR_RESULT_ID = '{_mentorResultId}'");
 
-
             dBManager.ExecuteNonQuery(sql.ToString());
         }
 
+        /// <summary>
+        /// コメントID取得
+        /// </summary>
+        /// <returns></returns>
+        private int GetCommentId()
+        {
+            int id = 1;
+            if (dgvIchiran.Rows.Count != 0)
+            {
+                Enumerable.Range(0, dgvIchiran.Rows.Count).Select(idx => dgvIchiran.Rows[idx]).ToList()
+                    .ForEach(row => id = Convert.ToInt32(row.Cells["COMMENT_ID"].Value));
+                id += 1;
+            }
 
+            return id;
+        }
+
+        /// <summary>
+        /// 変更検知
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private bool DetectionChange()
+        {
+            returnFlg = true;
+            if (changeFlg)
+            {
+                DialogResult result = MessageBox.Show(MSG.MSG005_004, MSG.MSG001_001, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
+
+                //何が選択されたか調べる
+                returnFlg = result != DialogResult.Yes ? true : false;
+                changeFlg = returnFlg;
+            }
+            return returnFlg;
+        }
+
+        /// <summary>
+        /// 3桁ごとにカンマ表示
+        /// </summary>
+        /// <param name="price"></param>
+        /// <returns></returns>
+        public string ToManey(object price) => String.Format("{0:#,0}", price);
+        #endregion
+
+        #region ボタンイベント
         /// <summary>
         /// 行追加ボタン
         /// </summary>
@@ -1762,29 +1830,8 @@ namespace Menter
         /// <param name="e"></param>
         private void btnInsert_Click(object sender, EventArgs e)
         {
-            rowInsertFlg = true;
-            DataTable dta = (DataTable)dgvIchiran.DataSource;
-            dta.Rows.Add(getCommentId(), false, false, user.Id, user.Name, "", "", null, 0);
-            DataGridViewCheckBoxCell cell = new DataGridViewCheckBoxCell();
-            dgvIchiran[(int)column.CORRECT_FLG, dgvIchiran.Rows.Count - 1] = cell;
+            dgvIchiran.Rows.Add(GetCommentId(), false, false, User.Id, User.Name, "", "", null, 0);
             changeFlg = true;
-
-        }
-        private int getCommentId()
-        {
-            int id = 1;
-            if (dgvIchiran.Rows.Count != 0)
-            {
-                for (int i = 0; i < dgvIchiran.Rows.Count; i++)
-                {
-                    if (id < int.Parse(dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString()))
-                    {
-                        id = int.Parse(dgvIchiran[(int)column.COMMENT_ID, i].Value.ToString());
-                    }
-                }
-                id = id + 1;
-            }
-            return id;
         }
 
         /// <summary>
@@ -1794,33 +1841,26 @@ namespace Menter
         /// <param name="e"></param>
         private void btnRowDelete_Click(object sender, EventArgs e)
         {
-
-            int selectedRow = -1;
-            if (dgvIchiran.CurrentCell != null)
-            {
-                selectedRow = dgvIchiran.CurrentCell.RowIndex;
-            }
+            //選択した明細行を取得
+            int selectedRow = dgvIchiran.CurrentCell != null ? dgvIchiran.CurrentCell.RowIndex : -1;
+            //行を選択していない場合エラー
             if (selectedRow == -1)
             {
-                MessageBox.Show("明細を選択してください", "エラー");
+                MessageBox.Show(MSG.MSG006_003, MSG.MSG001_002);
                 return;
             }
-            if (!dgvIchiran[(int)column.EMPLOYEE_ID, selectedRow].Value.ToString().Equals(user.Id))
+            if (!dgvIchiran["EMPLOYEE_ID", selectedRow].Value.ToString().Equals(User.Id))
             {
-                MessageBox.Show("他ユーザーのコメントは削除できません", "エラー");
+                MessageBox.Show(MSG.MSG006_004, MSG.MSG001_002);
                 return;
             }
-            if (rowDeleteCheck())
+            if (DeleteCheckRow())
             {
-                //削除するコメントをIDに格納
-                if ((String)dgvIchiran[(int)column.STETUS, selectedRow].Value != "0")
-                {
-                    delList.Add(dgvIchiran[(int)column.COMMENT_ID, selectedRow].Value.ToString());
-                }
+                //削除するコメントIDをリストに格納
+                delList.Add(dgvIchiran["COMMENT_ID", selectedRow].Value.ToString());
                 dgvIchiran.Rows.RemoveAt(selectedRow);
                 changeFlg = true;
             }
-
         }
 
         /// <summary>
@@ -1830,35 +1870,61 @@ namespace Menter
         /// <param name="e"></param>
         private void btnToroku_Click(object sender, EventArgs e)
         {
-            //明細の変更チェック
-            if (!insertInputCheckM())
+            try
             {
-                return;
-            }
-            //メニューでメンターを選択した場合
-            if (_mode == (int)mode.SUISHINBU)
-            {
-                //コメントの有無チェック
-                if (!insertInputCheckComment())
+                //DB接続
+                dBManager = new DBManager();
+
+                //明細の変更チェック
+                if (!InputCheckMInsert())
+                {
+                    return;
+                }
+                //メニューで推進部を選択した場合
+                if (Mode.Id == CommonConstants.ModeKbn.SUISINBU_ID)
+                {
+                    //コメントの有無チェック
+                    if (!InputCheckCommentInsert())
+                    {
+                        return;
+                    }
+                }
+                //ダイアログ
+                if (!CheckDiarog("登録"))
                 {
                     return;
                 }
 
+                //トランザクション開始
+                dBManager.BeginTran();
 
+                //登録処理
+                if (!ExcuteInsert())
+                {
+                    return;
+                }
+
+                //コミット
+                dBManager.CommitTran();
             }
-            if (!diarogCheck("登録"))
+            catch (MySqlException ex)
             {
+                MessageBox.Show(MSG.MSG003_002, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 return;
             }
-            if (!insertExcute())
+            finally
             {
-                return;
+                //DBクローズ
+                dBManager.Close();
             }
-            MessageBox.Show("登録が完了しました", "");
+
+            MessageBox.Show(MSG.MSG006_005, MSG.MSG001_001);
+            log.Display(MSG.MSG006_005);
             torokuFlg = true;
             changeFlg = false;
             _resultIdList.Clear();
-            this.Close();
+            Close();
         }
 
         /// <summary>
@@ -1868,24 +1934,52 @@ namespace Menter
         /// <param name="e"></param>
         private void btnReport_Click(object sender, EventArgs e)
         {
-            if (!reportInputCheck())
+            try
             {
+                //DB接続
+                dBManager = new DBManager();
+
+                //報告入力チェック
+                if (!InputCheckReport())
+                {
+                    return;
+                }
+                //ダイアログ
+                if (!CheckDiarog("報告"))
+                {
+                    return;
+                }
+
+                //トランザクション開始
+                dBManager.BeginTran();
+
+                //報告処理
+                if (!ExcuteReport())
+                {
+                    return;
+                }
+
+                //コミット
+                dBManager.CommitTran();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(MSG.MSG003_002, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 return;
             }
-            if (!diarogCheck("報告"))
+            finally
             {
-                return;
-            }
-            if (!reportExcute())
-            {
-                return;
+                //DBクローズ
+                dBManager.Close();
             }
 
-            MessageBox.Show("報告が完了しました", "");
+            MessageBox.Show(MSG.MSG006_006, MSG.MSG001_001);
+            log.Display(MSG.MSG006_006);
             torokuFlg = true;
             changeFlg = false;
             _resultIdList.Clear();
-            this.Close();
+            Close();
         }
 
         /// <summary>
@@ -1895,24 +1989,52 @@ namespace Menter
         /// <param name="e"></param>
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (!saveInputCheck())
+            try
             {
+                //DB接続
+                dBManager = new DBManager();
+
+                //一時保存チェック
+                if (!InputCheckSave())
+                {
+                    return;
+                }
+                //ダイアログ
+                if (!CheckDiarog("保存"))
+                {
+                    return;
+                }
+
+                //トランザクション開始
+                dBManager.BeginTran();
+
+                //一時保存処理
+                if (!ExecuteSave())
+                {
+                    return;
+                }
+
+                //コミット
+                dBManager.CommitTran();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(MSG.MSG003_002, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 return;
             }
-            if (!diarogCheck("保存"))
+            finally
             {
-                return;
-            }
-            if (!saveExecute())
-            {
-                return;
+                //DBクローズ
+                dBManager.Close();
             }
 
-            MessageBox.Show("保存が完了しました", "");
+            MessageBox.Show(MSG.MSG006_007, MSG.MSG001_001);
+            log.Display(MSG.MSG006_007);
             torokuFlg = true;
             changeFlg = false;
             _resultIdList.Clear();
-            this.Close();
+            Close();
         }
 
         /// <summary>
@@ -1922,36 +2044,54 @@ namespace Menter
         /// <param name="e"></param>
         private void btnRemand_Click(object sender, EventArgs e)
         {
-            //if (!remandInputCheck())
-            //{
-            //    return;
-            //}
-            MH0041 frm = new MH0041();
-            frm.ShowDialog();
-            if (!frm.inputFlg)
+            try
             {
+                //DB接続
+                dBManager = new DBManager();
+
+                //差し戻し画面に遷移
+                MH0041 frm = new MH0041();
+                frm.ShowDialog();
+                if (!frm.InputFlg)
+                {
+                    return;
+                }
+                //ダイアログ
+                if (!CheckDiarog("差戻し"))
+                {
+                    return;
+                }
+                //差戻理由追加
+                dgvIchiran.Rows.Add(GetCommentId(), false, false, User.Id, User.Name, "差戻理由:" + frm.Reason, "", null, 0);
+                DataGridViewCheckBoxCell cell = new DataGridViewCheckBoxCell();
+                dgvIchiran["CORRECT_FLG", dgvIchiran.Rows.Count - 1] = cell;
+
+                dBManager.BeginTran();
+                //差し戻し処理
+                if (!ExcuteRemand())
+                {
+                    return;
+                }
+                dBManager.CommitTran();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(MSG.MSG003_002, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 return;
             }
-            if (!diarogCheck("差戻し"))
+            finally
             {
-                return;
-            }
-            //差戻理由追加
-            rowInsertFlg = true;
-            DataTable dta = (DataTable)dgvIchiran.DataSource;
-            dta.Rows.Add(getCommentId(), false, false, user.Id, user.Name, "差戻理由:" + frm.reason, "", null, 0);
-            DataGridViewCheckBoxCell cell = new DataGridViewCheckBoxCell();
-            dgvIchiran[(int)column.CORRECT_FLG, dgvIchiran.Rows.Count - 1] = cell;
-            if (!remandExcute())
-            {
-                return;
+                //DBクローズ
+                dBManager.Close();
             }
 
-            MessageBox.Show("差戻しが完了しました", "");
+            MessageBox.Show(MSG.MSG006_008, MSG.MSG001_001);
+            log.Display(MSG.MSG006_008);
             torokuFlg = true;
             changeFlg = false;
             _resultIdList.Clear();
-            this.Close();
+            Close();
         }
 
         /// <summary>
@@ -1961,20 +2101,47 @@ namespace Menter
         /// <param name="e"></param>
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            try
+            {
+                //DB接続
+                dBManager = new DBManager();
 
-            if (!diarogCheck("削除"))
+                //ダイアログ
+                if (!CheckDiarog("削除"))
+                {
+                    return;
+                }
+
+                //トランザクション開始
+                dBManager.BeginTran();
+
+                //削除処理
+                if (!ExcuteDelete())
+                {
+                    return;
+                }
+
+                //コミット
+                dBManager.CommitTran();
+            }
+            catch (MySqlException ex)
             {
+                MessageBox.Show(MSG.MSG003_002, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(ex.ToString());
                 return;
             }
-            if (!deleteExcute())
+            finally
             {
-                return;
+                //DBクローズ
+                dBManager.Close();
             }
-            MessageBox.Show("削除が完了しました", "");
+
+            MessageBox.Show(MSG.MSG006_009, MSG.MSG001_001);
+            log.Display(MSG.MSG006_009);
             torokuFlg = true;
             changeFlg = false;
             _resultIdList.Clear();
-            this.Close();
+            Close();
         }
 
         /// <summary>
@@ -1984,7 +2151,7 @@ namespace Menter
         /// <param name="e"></param>
         private void btnReturn_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         /// <summary>
@@ -1994,12 +2161,13 @@ namespace Menter
         /// <param name="e"></param>
         private void MH0040_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (changeDetection())
+            //変更検知
+            if (DetectionChange())
             {
                 e.Cancel = true;
             }
 
-            if (!_mentorResultId.Equals(""))
+            if (!string.IsNullOrEmpty(_mentorResultId))
             {
                 if (shokaiMode)
                 {
@@ -2010,40 +2178,8 @@ namespace Menter
                 {
                     return;
                 }
-
             }
         }
-        /// <summary>
-        /// 変更検知
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private bool changeDetection()
-        {
-
-            if (!torokuFlg)
-            {
-
-            }
-            if (changeFlg)
-            {
-                DialogResult result = MessageBox.Show("内容が変更されています。\n\r変更は破棄されますが、よろしいですか？", "", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
-
-                //何が選択されたか調べる
-                if (result == DialogResult.Yes)
-                {
-                    changeFlg = false;
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
 
         /// <summary>
         /// ←ボタン
@@ -2052,25 +2188,26 @@ namespace Menter
         /// <param name="e"></param>
         private void btnDn_Click(object sender, EventArgs e)
         {
-            if (changeDetection())
+            //変更検知
+            if (DetectionChange())
             {
                 return;
             }
             string lastResultId = _resultIdList.Last();
             //新規(遷移元から引数としてメンター実績IDを取得していない)の場合
-            if (_mentorResultId.Equals(""))
+            if (string.IsNullOrEmpty(_mentorResultId))
             {
-                this.Hide();
-                MH0040 mh0040 = new MH0040(user, _resultIdList, lastResultId, _mode);
-                mh0040.ShowDialog();
-                this.torokuFlg = mh0040.torokuFlg;
+                Hide();
+                MH0040 mh0040 = new MH0040(_resultIdList, lastResultId);
+                ShowDialog(mh0040);
+                torokuFlg = mh0040.torokuFlg;
             }
             else
             {
                 //メンター実績ID配列内にある引数の実績IDのひとつ前のメンターID
                 int index = _resultIdList.IndexOf(_mentorResultId);
                 string id = _resultIdList[index - 1];
-                this.Hide();
+                Hide();
                 if (!shokaiMode)
                 {
                     //排他トラン削除
@@ -2079,9 +2216,9 @@ namespace Menter
                         return;
                     }
                 }
-                MH0040 mh0040 = new MH0040(user, _resultIdList, id, _mode);
-                mh0040.ShowDialog();
-                this.torokuFlg = mh0040.torokuFlg;
+                MH0040 mh0040 = new MH0040(_resultIdList, id);
+                ShowDialog(mh0040);
+                torokuFlg = mh0040.torokuFlg;
             }
         }
 
@@ -2092,7 +2229,8 @@ namespace Menter
         /// <param name="e"></param>
         private void btnUp_Click(object sender, EventArgs e)
         {
-            if (changeDetection())
+            //変更検知
+            if (DetectionChange())
             {
                 return;
             }
@@ -2100,7 +2238,7 @@ namespace Menter
             //実績IDがメンター実績ID配列の最終IDと一致する場合
             if (_mentorResultId.Equals(lastResultId))
             {
-                this.Hide();
+                Hide();
                 if (!shokaiMode)
                 {
                     //排他トラン削除
@@ -2109,16 +2247,16 @@ namespace Menter
                         return;
                     }
                 }
-                MH0040 mh0040 = new MH0040(user, _resultIdList);
-                mh0040.ShowDialog();
-                this.torokuFlg = mh0040.torokuFlg;
+                MH0040 mh0040 = new MH0040(_resultIdList);
+                ShowDialog(mh0040);
+                torokuFlg = mh0040.torokuFlg;
             }
             else
             {
                 //メンター実績ID配列内にある引数の実績IDのひとつ前のメンターID
                 int index = _resultIdList.IndexOf(_mentorResultId);
                 string id = _resultIdList[index + 1];
-                this.Hide();
+                Hide();
                 if (!shokaiMode)
                 {
                     //排他トラン削除
@@ -2127,245 +2265,11 @@ namespace Menter
                         return;
                     }
                 }
-                MH0040 mh0040 = new MH0040(user, _resultIdList, id, _mode);
-                mh0040.ShowDialog();
-                this.torokuFlg = mh0040.torokuFlg;
+                MH0040 mh0040 = new MH0040(_resultIdList, id);
+                ShowDialog(mh0040);
+                torokuFlg = mh0040.torokuFlg;
             }
         }
-
-
-
-        /// <summary>
-        /// メンターコンボボックス変更処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cboMentee_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        /// <summary>
-        /// 実施開始時間変更処理(時)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cboStartH_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        /// <summary>
-        /// 実施開始時間変更処理(分)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cboStartM_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        /// <summary>
-        /// 実施終了時間変更処理(時)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cboEndH_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        /// <summary>
-        /// 実施終了時間変更処理(分)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cboEndM_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-
-
-        private void cboPlanStartH_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        private void cboPlanStartM_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        private void cboPlanEndH_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        private void cboPlanEndM_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        private void txtPlace_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        /// -----------------------------------------------------------------------------
-        /// <summary>
-        ///     文字列が数値であるかどうかを返します。</summary>
-        /// <param name="stTarget">
-        ///     検査対象となる文字列。<param>
-        /// <returns>
-        ///     指定した文字列が数値であれば true。それ以外は false。</returns>
-        /// -----------------------------------------------------------------------------
-        private bool IsNumeric(string stTarget)
-        {
-            double dNullable;
-
-            return double.TryParse(
-                stTarget,
-                System.Globalization.NumberStyles.Any,
-                null,
-                out dNullable
-            );
-        }
-
-        private void txtPrice_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                int selection = txtPrice.SelectionStart;
-                int length = txtPrice.Text.Length;
-                changeFlg = true;
-                if (!string.IsNullOrEmpty(txtPrice.Text))
-                {
-                    //数値以外入力不可
-                    if (!IsNumeric(txtPrice.Text.Replace(",", "")))
-                    {
-                        txtPrice.Text = "";
-                        return;
-                    }
-                    //マイナス入力不可
-                    if (int.Parse(txtPrice.Text.Replace(",", "")) < 0)
-                    {
-                        txtPrice.Text = "";
-                        return;
-                    }
-                    //5桁以上入力不可
-                    if (int.Parse(txtPrice.Text.Replace(",", "")) > 99999)
-                    {
-                        txtPrice.Text = "";
-                        return;
-                    }
-                    txtPrice.Text = int.Parse(txtPrice.Text.Replace(",", "")).ToString("#,0");
-                    if (length < txtPrice.Text.Length)
-                    {
-                        selection = selection + 1;
-                    }
-                    else if (length > txtPrice.Text.Length)
-                    {
-                        if (selection > 0)
-                        {
-                            selection = selection - 1;
-                        }
-                    }
-
-
-                }
-                this.txtPrice.Select(selection, 0);
-                return;
-            }
-        }
-
-        private void txtReport_TextChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-
-
-
-        private void dgvIchiran_CellValidated(object sender, DataGridViewCellEventArgs e)
-        {
-            if (dgvIchiran[(int)column.STETUS, e.RowIndex].Value.ToString() != "0")
-            {
-
-                if ((dgvIchiran[(int)column.CONTENT, e.RowIndex].Value.ToString().Equals(dgvIchiran[(int)column.CONTENT_OLD, e.RowIndex].Value.ToString())) &&
-                    (dgvIchiran[(int)column.CORRECT_FLG, e.RowIndex].Value.ToString().Equals(dgvIchiran[(int)column.CORRECT_FLG_OLD, e.RowIndex].Value.ToString())))
-                {
-                    dgvIchiran[(int)column.STETUS, e.RowIndex].Value = "";
-                }
-                else
-                {
-                    dgvIchiran[(int)column.STETUS, e.RowIndex].Value = "1";
-                    if (_mode == (int)mode.SUISHINBU)
-                    {
-                        dgvIchiran[(int)column.CORRECT_FLG, e.RowIndex].Value = false;
-                    }
-                    changeFlg = true;
-                }
-            }
-
-        }
-
-        private void txtPrice_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            //0～9と、バックスペース以外の時は、イベントをキャンセルする
-            if ((e.KeyChar < '0' || '9' < e.KeyChar) && e.KeyChar != '\b' && (Control.ModifierKeys & Keys.Control) != Keys.Control)
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void dtpDatePlan_ValueChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
-
-        private void dtpExecDate_ValueChanged(object sender, EventArgs e)
-        {
-            if (flg)
-            {
-                changeFlg = true;
-            }
-        }
+        #endregion
     }
 }

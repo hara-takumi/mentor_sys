@@ -6,39 +6,41 @@ namespace Menter
 {
     class DBManager
     {
+        #region メンバー変数
         private MySqlConnection sqlConnection;
         private MySqlTransaction sqlTransaction;
-
         private bool failFlg;
+        #endregion
 
+        #region プロパティ
         public bool FailFlg { get => failFlg; set => failFlg = value; }
+        #endregion
 
-
+        #region コンストラクタ
         /// <summary>
         /// コンストラクタ（DB接続）
         /// </summary>
         public DBManager()
         {
-
             // 接続文字列を生成
             var connectString = ConfigurationManager.ConnectionStrings["mysql"].ConnectionString;
 
             // SqlConnection の新しいインスタンスを生成 (接続文字列を指定)
-            this.sqlConnection = new MySqlConnection(connectString);
-
+            sqlConnection = new MySqlConnection(connectString);
 
             // データベース接続を開く
             sqlConnection.Open();
-
         }
+        #endregion
 
+        #region メソッド
         /// <summary>
         /// DB切断
         /// </summary>
         public void Close()
         {
-            this.sqlConnection.Close();
-            this.sqlConnection.Dispose();
+            sqlConnection.Close();
+            sqlConnection.Dispose();
         }
 
         /// <summary>
@@ -46,7 +48,7 @@ namespace Menter
         /// </summary>
         public void BeginTran()
         {
-            this.sqlTransaction = this.sqlConnection.BeginTransaction();
+            sqlTransaction = sqlConnection.BeginTransaction();
         }
 
         /// <summary>
@@ -54,10 +56,10 @@ namespace Menter
         /// </summary>
         public void CommitTran()
         {
-            if (this.sqlTransaction.Connection != null)
+            if (sqlTransaction.Connection != null)
             {
-                this.sqlTransaction.Commit();
-                this.sqlTransaction.Dispose();
+                sqlTransaction.Commit();
+                sqlTransaction.Dispose();
             }
         }
 
@@ -66,10 +68,10 @@ namespace Menter
         /// </summary>
         public void RollBack()
         {
-            if (this.sqlTransaction.Connection != null)
+            if (sqlTransaction.Connection != null)
             {
-                this.sqlTransaction.Rollback();
-                this.sqlTransaction.Dispose();
+                sqlTransaction.Rollback();
+                sqlTransaction.Dispose();
             }
         }
 
@@ -80,10 +82,9 @@ namespace Menter
         /// <returns>DataSet</returns>
         public DataSet ExecuteQuery(string sql, DataSet ds)
         {
-
             // 実行するSQLの準備
             var command = new MySqlCommand();
-            command.Connection = this.sqlConnection;
+            command.Connection = sqlConnection;
             command.CommandText = sql;
 
             DataTable dt = new DataTable();
@@ -109,13 +110,14 @@ namespace Menter
             MySqlCommand sqlCom = new MySqlCommand();
 
             //クエリー送信先、トランザクションの指定
-            sqlCom.Connection = this.sqlConnection;
-            sqlCom.Transaction = this.sqlTransaction;
+            sqlCom.Connection = sqlConnection;
+            sqlCom.Transaction = sqlTransaction;
 
             sqlCom.CommandText = query;
 
             // SQLを実行
             sqlCom.ExecuteNonQuery();
         }
+        #endregion
     }
 }

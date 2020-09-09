@@ -86,6 +86,7 @@
             this.Font = new System.Drawing.Font("MS UI Gothic", 16F);
             this.Margin = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.Name = "MH0041";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MH0041";
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -66,6 +66,7 @@
             // 
             this.txtPw.Location = new System.Drawing.Point(349, 167);
             this.txtPw.Name = "txtPw";
+            this.txtPw.PasswordChar = '●';
             this.txtPw.Size = new System.Drawing.Size(224, 19);
             this.txtPw.TabIndex = 2;
             // 
@@ -91,6 +92,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "MH0010";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MH0010";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MH0010_FormClosing);
             this.ResumeLayout(false);

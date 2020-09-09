@@ -64,7 +64,7 @@
             this.btnKrihiShokai.Location = new System.Drawing.Point(823, 192);
             this.btnKrihiShokai.Name = "btnKrihiShokai";
             this.btnKrihiShokai.Size = new System.Drawing.Size(327, 71);
-            this.btnKrihiShokai.TabIndex = 4;
+            this.btnKrihiShokai.TabIndex = 3;
             this.btnKrihiShokai.Text = "メンター活動経費照会";
             this.btnKrihiShokai.UseVisualStyleBackColor = true;
             this.btnKrihiShokai.Click += new System.EventHandler(this.btnKrihiShokai_Click);
@@ -75,10 +75,10 @@
             this.btnMasta.Location = new System.Drawing.Point(434, 311);
             this.btnMasta.Name = "btnMasta";
             this.btnMasta.Size = new System.Drawing.Size(327, 71);
-            this.btnMasta.TabIndex = 3;
+            this.btnMasta.TabIndex = 4;
             this.btnMasta.Text = "メンター・メンティーマスタメンテナンス";
             this.btnMasta.UseVisualStyleBackColor = true;
-            this.btnMasta.Click += new System.EventHandler(this.btnMenta_Click);
+            this.btnMasta.Click += new System.EventHandler(this.btnMasta_Click);
             // 
             // btnLogout
             // 
@@ -114,6 +114,7 @@
             this.Controls.Add(this.btnIchiranTeam);
             this.Controls.Add(this.btnIchiranMentor);
             this.Name = "MH0020";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MH0020";
             this.Load += new System.EventHandler(this.MH0020_Load);
             this.ResumeLayout(false);

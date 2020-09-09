@@ -8,13 +8,14 @@ namespace Menter
 {
     public class User
     {
-        string mId;
-        string mName;
-        string mTeamKbn;
-        string mKeiriKbn;
-        public User()
-        {
-        }
+        #region メンバー変数
+        private string mId;
+        private string mName;
+        private string mTeamKbn;
+        private string mKeiriKbn;
+        #endregion
+
+        #region コンストラクタ
         public User(string id, string name)
         {
             mId = id;
@@ -27,51 +28,13 @@ namespace Menter
             mTeamKbn = teamKbn;
             mKeiriKbn = keiriKbn;
         }
-        public string Name
-        {
-            set
-            {
-                mName = value;
-            }
-            get
-            {
-                return mName;
-            }
-        }
+        #endregion
 
-        public string Id
-        {
-            set
-            {
-                mId = value;
-            }
-            get
-            {
-                return mId;
-            }
-        }
-        public string TeamKbn
-        {
-            set
-            {
-                mTeamKbn = value;
-            }
-            get
-            {
-                return mTeamKbn;
-            }
-        }
-        public string KeiriKbn
-        {
-            set
-            {
-                mKeiriKbn = value;
-            }
-            get
-            {
-                return mKeiriKbn;
-            }
-        }
-
+        #region プロパティ
+        public string Name { get => mName; set => mName = value; }
+        public string Id { get => mId; set => mId = value; }
+        public string TeamKbn { get => mTeamKbn; set => mTeamKbn = value; }
+        public string KeiriKbn { get => mKeiriKbn; set => mKeiriKbn = value; }
+        #endregion
     }
 }

@@ -1,37 +1,56 @@
-﻿using MySql.Data.MySqlClient;
-using System;
+﻿using System;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
 namespace Menter
 {
-    public partial class MH0010 : Form
+    public partial class MH0010 : BaseForm
     {
-        CommonUtil comU = new CommonUtil();
-        DBManager dBManager;
+        #region メンバー変数
+        private readonly CommonUtil comU = new CommonUtil();
+        private readonly DBUtli dbUtil = new DBUtli();
+        private readonly Logger log = new Logger();
+        private bool initialFlg = true;
+        #endregion
+
+        #region コンストラクタ
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public MH0010()
         {
             InitializeComponent();
-            txtPw.PasswordChar = '●';
-            txtUserCd.Text = "1805";
-            txtPw.Text = "2222222222";
+            txtUserCd.Text = "1111";
+            txtPw.Text = "6666666666";
+            log.Display("処理開始");
         }
+        #endregion
 
+        #region ボタンイベント
+        /// <summary>
+        /// ログインボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnLogin_Click(object sender, EventArgs e)
         {
+            //ログインCDが空欄の場合
             if (string.IsNullOrEmpty(txtUserCd.Text))
             {
-                MessageBox.Show("ユーザーCDを入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(MSG.MSG002_001, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(MSG.MSG002_001);
                 txtUserCd.Focus();
                 return;
             }
+            //パスワードが空欄の場合
             else if (string.IsNullOrEmpty(txtPw.Text))
             {
-                MessageBox.Show("パスワードを入力してください", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(MSG.MSG002_002, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Display(MSG.MSG002_002);
                 txtPw.Focus();
                 return;
-
             }
             else
             {
@@ -50,69 +69,60 @@ namespace Menter
                 sql.Append(" AND MST_SHAIN_TEKIYO_DATE_END >= CURDATE()");
                 sql.Append($" AND MST_SHAINPW_GENERAITON = (select MAX(MST_SHAINPW_GENERAITON) from mst_shainpw WHERE MST_SHAINPW_CODE = '{txtUserCd.Text}')");
 
-                DataSet ds = new DataSet();
-                try
+                //SQL処理
+                DataSet ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
+                //実行エラー時
+                if(ds == null)
                 {
-                    //DB接続
-                    dBManager = new DBManager();
-                }
-                catch (MySqlException ex)
-                {
-                    MessageBox.Show("DB接続に失敗しました。", "エラー");
                     return;
                 }
-                try
-                {
-                    dBManager.ExecuteQuery(sql.ToString(), ds);
-                }
-                catch (MySqlException ex)
-                {
-                    MessageBox.Show("SQLの実行に失敗しました。", "エラー");
-                    return;
-                }
-                finally
-                {
-                    //DBクローズ
-                    dBManager.Close();
-                }
-
-
+                //ユーザーを取得した場合
                 if (ds.Tables[0].Rows.Count != 0)
                 {
-                    for (int i = 0; i < ds.Tables["Table1"].Rows.Count; i++)
-                    {
-                        //パスワードハッシュ化
-                        string hash = comU.GetHashedPassword(txtPw.Text);
-                        if (ds.Tables["Table1"].Rows[i]["MST_SHAINPW_PASSWORD"].ToString().Equals(hash))
-                        {
-                            string id = ds.Tables["Table1"].Rows[i]["MST_SHAIN_CODE"].ToString();
-                            string name = ds.Tables["Table1"].Rows[i]["MST_SHAIN_NAME"].ToString();
-                            string teamKbn = ds.Tables["Table1"].Rows[i]["MST_SHAIN_MENTOR_TEAM_KBN"].ToString();
-                            string keiriKbn = ds.Tables["Table1"].Rows[i]["MST_SHAIN_KEIRI_TANTO_KBN"].ToString();
-                            User user = new User(id, name, teamKbn, keiriKbn);
-
-                            //排他トラン削除
-                            if (!comU.DeleteHaitaUser(id))
-                            {
-                                return;
-                            }
-
-                            MH0020 frm = new MH0020(user);
-                            frm.Show();
-                            this.Hide();
-                            return;
-                        }
-                    }
-
+                    string id = "";
+                    string name = "";
+                    string teamKbn = "";
+                    string keiriKbn = "";
+                    //パスワードハッシュ化
+                    string hash = comU.GetHashedPassword(txtPw.Text);
+                    //登録されているパスワードとハッシュ化したパスワードが一致する場合
+                    Enumerable.Range(0, ds.Tables[0].Rows.Count).Select(idx => ds.Tables[0].Rows[idx] as DataRow)
+                        .Where(dr => dr["MST_SHAINPW_PASSWORD"].Equals(hash)).ToList()
+                        .ForEach(dr => {
+                            id = dr["MST_SHAIN_CODE"].ToString();
+                            name = dr["MST_SHAIN_NAME"].ToString();
+                            teamKbn = dr["MST_SHAIN_MENTOR_TEAM_KBN"].ToString();
+                            keiriKbn = dr["MST_SHAIN_KEIRI_TANTO_KBN"].ToString();
+                        });
+                    User = new User(id, name, teamKbn, keiriKbn);
+                    //メニュー画面に遷移
+                    MH0020 frm = new MH0020();
+                    Show(frm);
+                    Hide();
                 }
-                MessageBox.Show("ユーザーCDまたはパスワードが正しくありません", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
+                else
+                {
+                    MessageBox.Show(MSG.MSG002_003, MSG.MSG001_002, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    log.Display(MSG.MSG002_003);
+                }
             }
         }
 
+        /// <summary>
+        /// ✕ボタンの処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MH0010_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Application.Exit();
+            //初期化時は通らない
+            if (initialFlg)
+            {
+                log.Display("処理終了\n");
+                initialFlg = false;
+                Application.Exit();
+            }
         }
+        #endregion
     }
 }
