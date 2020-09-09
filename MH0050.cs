@@ -116,11 +116,11 @@ namespace Menter
             cboYearFrom.DataSource = comU.CYear(true).ToArray();
             cboYearFrom.Text = dt.ToString("yyyy");
             cboMonthFrom.DataSource = comU.CMonth(true).ToArray();
-            cboMonthFrom.Text = dt.Month.ToString();
+            cboMonthFrom.Text = dt.ToString("MM");
             cboYearTo.DataSource = comU.CYear(true).ToArray();
             cboYearTo.Text = dt.ToString("yyyy");
             cboMonthTo.DataSource = comU.CMonth(true).ToArray();
-            cboMonthTo.Text = dt.Month.ToString();
+            cboMonthTo.Text = dt.ToString("MM");
 
             //コンボボックスにメンターを設定
             SetMentor();
@@ -313,7 +313,10 @@ namespace Menter
             //SQL処理
             DataSet ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
             //実行エラー時
-            if (ds == null) return;
+            if (ds == null)
+            {
+                return;
+            }
 
             //検索結果が0件の場合
             if (ds.Tables[0].Rows.Count == 0)
@@ -369,8 +372,10 @@ namespace Menter
         private void btnCreate_Click(object sender, EventArgs e)
         {
             //入力チェック
-            if (!CheckInsert()) return;
-
+            if (!CheckInsert())
+            {
+                return;
+            }
             //検索結果表示
             Result();
         }

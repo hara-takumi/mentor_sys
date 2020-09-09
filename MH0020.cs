@@ -1,6 +1,8 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Data;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Menter
 {
@@ -8,7 +10,7 @@ namespace Menter
     {
         #region メンバー変数
         private readonly DBUtli dbUtil = new DBUtli();
-        private bool resultFlg = true;
+        private bool errorFlg = true;
         private bool returnFlg = true;
         #endregion
 
@@ -43,8 +45,7 @@ namespace Menter
             //ログインユーザーがメンター登録されていない場合
             if (!GetMentor())
             {
-                //メンターマスタの検索結果が0件の場合
-                if (resultFlg)
+                if (errorFlg)
                 {
                     //メンター活動実績入力画面遷移ボタンを非表示
                     btnIchiranMentor.Visible = false;
@@ -84,7 +85,7 @@ namespace Menter
             DataSet ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
             //SQL実行エラーの場合
             returnFlg = ds != null ? true : false;
-            resultFlg = returnFlg;
+            errorFlg = returnFlg;
             //取得結果が0件の場合
             if (returnFlg)
             {

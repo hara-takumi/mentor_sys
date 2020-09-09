@@ -385,7 +385,10 @@ namespace Menter
                     btnDn.Enabled = false;
                 }
                 //推進チームコメント取得
-                if (!GetComent()) return;
+                if (!GetComent())
+                {
+                    return;
+                }
 
                 DataSet ds = new DataSet();
                 //メンター実績取得
@@ -654,7 +657,10 @@ namespace Menter
             //SQL処理
             ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_005);
             //実行エラー時
-            if (ds == null) return;
+            if (ds == null)
+            {
+                return;
+            }
         }
 
         /// <summary>
@@ -715,13 +721,13 @@ namespace Menter
             //コメント入力文字数制限
             ((DataGridViewTextBoxColumn)dgvIchiran.Columns["CONTENT"]).MaxInputLength = 512;
 
-            Enumerable.Range(0, dsComent.Tables[0].Rows.Count).Select(idx => dsComent.Tables[0].Rows[idx] as DataRow).ToList()
-                 .ForEach(dr =>
+            Enumerable.Range(0, dgvIchiran.Rows.Count).Select(idx => dgvIchiran.Rows[idx]).ToList()
+                .ForEach(dr =>
                 {
                     int idx = dgvIchiran.Rows.Count - 1;
                     //他者のコメントは編集不可
                     if (Mode.Id == CommonConstants.ModeKbn.SUISINBU_ID 
-                    && !dr["EMPLOYEE_ID"].ToString().Equals(User.Id))
+                    && !dr.Cells["EMPLOYEE_ID"].Value.ToString().Equals(User.Id))
                     {
                         //ログインユーザーのIDとコメント記入者のIDが一致しない場合、コメント編集不可
                         dgvIchiran.Rows[idx].Cells["CONTENT"].ReadOnly = true;
@@ -830,7 +836,10 @@ namespace Menter
             //SQL処理
             DataSet ds = dbUtil.OperationDB(sql.ToString(), MSG.MSG003_001);
             //実行エラー時
-            if (ds == null) return count;
+            if (ds == null)
+            {
+                return count;
+            }
 
             DataRow dr = ds.Tables[0].AsEnumerable().First();
 
@@ -1042,7 +1051,10 @@ namespace Menter
                 }
             }
             //時刻チェック
-            if (!CheckTime()) return false;
+            if (!CheckTime())
+            {
+                return false;
+            }
 
             return true;
         }
@@ -1161,7 +1173,10 @@ namespace Menter
                 }
             }
             //時刻チェック
-            if (!CheckTime()) return false;
+            if (!CheckTime())
+            {
+                return false;
+            }
 
             return true;
         }
@@ -1438,7 +1453,10 @@ namespace Menter
                 : endPlanTime;
 
             int recordCount = MentorResultCount();
-            if(recordCount == -1) return;
+            if(recordCount == -1)
+            {
+                return;
+            }
 
             StringBuilder sql = new StringBuilder();
             sql.Append(" INSERT INTO TRN_MENTOR_RESULT ");
@@ -1767,11 +1785,10 @@ namespace Menter
         private int GetCommentId()
         {
             int id = 1;
-            //1件以上のデータが存在する場合
             if (dgvIchiran.Rows.Count != 0)
             {
-                Enumerable.Range(0, dsComent.Tables[0].Rows.Count).Select(idx => dsComent.Tables[0].Rows[idx] as DataRow).ToList()
-                    .ForEach(dr => id = Convert.ToInt32(dr["COMMENT_ID"].ToString()));
+                Enumerable.Range(0, dgvIchiran.Rows.Count).Select(idx => dgvIchiran.Rows[idx]).ToList()
+                    .ForEach(row => id = Convert.ToInt32(row.Cells["COMMENT_ID"].Value));
                 id += 1;
             }
 
@@ -1785,8 +1802,7 @@ namespace Menter
         /// <param name="e"></param>
         private bool DetectionChange()
         {
-            returnFlg = false;
-            //変更されている場合
+            returnFlg = true;
             if (changeFlg)
             {
                 DialogResult result = MessageBox.Show(MSG.MSG005_004, MSG.MSG001_001, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
@@ -1833,13 +1849,11 @@ namespace Menter
                 MessageBox.Show(MSG.MSG006_003, MSG.MSG001_002);
                 return;
             }
-            //ログインユーザーとコメント記入者が一致しない場合
             if (!dgvIchiran["EMPLOYEE_ID", selectedRow].Value.ToString().Equals(User.Id))
             {
                 MessageBox.Show(MSG.MSG006_004, MSG.MSG001_002);
                 return;
             }
-            //行削除チェック
             if (DeleteCheckRow())
             {
                 //削除するコメントIDをリストに格納
@@ -1862,22 +1876,33 @@ namespace Menter
                 dBManager = new DBManager();
 
                 //明細の変更チェック
-                if (!InputCheckMInsert()) return;
-
+                if (!InputCheckMInsert())
+                {
+                    return;
+                }
                 //メニューで推進部を選択した場合
                 if (Mode.Id == CommonConstants.ModeKbn.SUISINBU_ID)
                 {
                     //コメントの有無チェック
-                    if (!InputCheckCommentInsert()) return;
+                    if (!InputCheckCommentInsert())
+                    {
+                        return;
+                    }
                 }
                 //ダイアログ
-                if (!CheckDiarog("登録")) return;
+                if (!CheckDiarog("登録"))
+                {
+                    return;
+                }
 
                 //トランザクション開始
                 dBManager.BeginTran();
 
                 //登録処理
-                if (!ExcuteInsert()) return;
+                if (!ExcuteInsert())
+                {
+                    return;
+                }
 
                 //コミット
                 dBManager.CommitTran();
@@ -1915,16 +1940,24 @@ namespace Menter
                 dBManager = new DBManager();
 
                 //報告入力チェック
-                if (!InputCheckReport()) return;
-
+                if (!InputCheckReport())
+                {
+                    return;
+                }
                 //ダイアログ
-                if (!CheckDiarog("報告")) return;
+                if (!CheckDiarog("報告"))
+                {
+                    return;
+                }
 
                 //トランザクション開始
                 dBManager.BeginTran();
 
                 //報告処理
-                if (!ExcuteReport()) return;
+                if (!ExcuteReport())
+                {
+                    return;
+                }
 
                 //コミット
                 dBManager.CommitTran();
@@ -1962,16 +1995,24 @@ namespace Menter
                 dBManager = new DBManager();
 
                 //一時保存チェック
-                if (!InputCheckSave()) return;
-
+                if (!InputCheckSave())
+                {
+                    return;
+                }
                 //ダイアログ
-                if (!CheckDiarog("保存")) return;
+                if (!CheckDiarog("保存"))
+                {
+                    return;
+                }
 
                 //トランザクション開始
                 dBManager.BeginTran();
 
                 //一時保存処理
-                if (!ExecuteSave()) return;
+                if (!ExecuteSave())
+                {
+                    return;
+                }
 
                 //コミット
                 dBManager.CommitTran();
@@ -2011,11 +2052,15 @@ namespace Menter
                 //差し戻し画面に遷移
                 MH0041 frm = new MH0041();
                 frm.ShowDialog();
-                if (!frm.InputFlg) return;
-
+                if (!frm.InputFlg)
+                {
+                    return;
+                }
                 //ダイアログ
-                if (!CheckDiarog("差戻し")) return;
-
+                if (!CheckDiarog("差戻し"))
+                {
+                    return;
+                }
                 //差戻理由追加
                 dgvIchiran.Rows.Add(GetCommentId(), false, false, User.Id, User.Name, "差戻理由:" + frm.Reason, "", null, 0);
                 DataGridViewCheckBoxCell cell = new DataGridViewCheckBoxCell();
@@ -2023,8 +2068,10 @@ namespace Menter
 
                 dBManager.BeginTran();
                 //差し戻し処理
-                if (!ExcuteRemand()) return;
-
+                if (!ExcuteRemand())
+                {
+                    return;
+                }
                 dBManager.CommitTran();
             }
             catch (MySqlException ex)
@@ -2060,13 +2107,19 @@ namespace Menter
                 dBManager = new DBManager();
 
                 //ダイアログ
-                if (!CheckDiarog("削除")) return;
+                if (!CheckDiarog("削除"))
+                {
+                    return;
+                }
 
                 //トランザクション開始
                 dBManager.BeginTran();
 
                 //削除処理
-                if (!ExcuteDelete()) return;
+                if (!ExcuteDelete())
+                {
+                    return;
+                }
 
                 //コミット
                 dBManager.CommitTran();
@@ -2114,14 +2167,17 @@ namespace Menter
                 e.Cancel = true;
             }
 
-            //メンター実績IDがnull以外
             if (!string.IsNullOrEmpty(_mentorResultId))
             {
-                //照会モードの場合
-                if (shokaiMode) return;
-                
+                if (shokaiMode)
+                {
+                    return;
+                }
                 //排他トラン削除
-                if (!comU.DeleteHaitaTrn(_mentorResultId)) return;
+                if (!comU.DeleteHaitaTrn(_mentorResultId))
+                {
+                    return;
+                }
             }
         }
 
@@ -2133,14 +2189,15 @@ namespace Menter
         private void btnDn_Click(object sender, EventArgs e)
         {
             //変更検知
-            if (DetectionChange()) return;
-
+            if (DetectionChange())
+            {
+                return;
+            }
             string lastResultId = _resultIdList.Last();
             //新規(遷移元から引数としてメンター実績IDを取得していない)の場合
             if (string.IsNullOrEmpty(_mentorResultId))
             {
                 Hide();
-                //１つ前の報告書に遷移
                 MH0040 mh0040 = new MH0040(_resultIdList, lastResultId);
                 ShowDialog(mh0040);
                 torokuFlg = mh0040.torokuFlg;
@@ -2151,13 +2208,14 @@ namespace Menter
                 int index = _resultIdList.IndexOf(_mentorResultId);
                 string id = _resultIdList[index - 1];
                 Hide();
-                //照会モード以外
                 if (!shokaiMode)
                 {
                     //排他トラン削除
-                    if (!comU.DeleteHaitaTrn(_mentorResultId)) return;
+                    if (!comU.DeleteHaitaTrn(_mentorResultId))
+                    {
+                        return;
+                    }
                 }
-                //１つ前の報告書に遷移
                 MH0040 mh0040 = new MH0040(_resultIdList, id);
                 ShowDialog(mh0040);
                 torokuFlg = mh0040.torokuFlg;
@@ -2172,20 +2230,23 @@ namespace Menter
         private void btnUp_Click(object sender, EventArgs e)
         {
             //変更検知
-            if (DetectionChange()) return;
-
+            if (DetectionChange())
+            {
+                return;
+            }
             string lastResultId = _resultIdList.Last();
             //実績IDがメンター実績ID配列の最終IDと一致する場合
             if (_mentorResultId.Equals(lastResultId))
             {
                 Hide();
-                //照会モード以外
                 if (!shokaiMode)
                 {
                     //排他トラン削除
-                    if (!comU.DeleteHaitaTrn(_mentorResultId)) return;
+                    if (!comU.DeleteHaitaTrn(_mentorResultId))
+                    {
+                        return;
+                    }
                 }
-                //１つ後の報告書に遷移
                 MH0040 mh0040 = new MH0040(_resultIdList);
                 ShowDialog(mh0040);
                 torokuFlg = mh0040.torokuFlg;
@@ -2196,13 +2257,14 @@ namespace Menter
                 int index = _resultIdList.IndexOf(_mentorResultId);
                 string id = _resultIdList[index + 1];
                 Hide();
-                //照会モード以外
                 if (!shokaiMode)
                 {
                     //排他トラン削除
-                    if (!comU.DeleteHaitaTrn(_mentorResultId)) return;
+                    if (!comU.DeleteHaitaTrn(_mentorResultId))
+                    {
+                        return;
+                    }
                 }
-                //１つ後の報告書に遷移
                 MH0040 mh0040 = new MH0040(_resultIdList, id);
                 ShowDialog(mh0040);
                 torokuFlg = mh0040.torokuFlg;
